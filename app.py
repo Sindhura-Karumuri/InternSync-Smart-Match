@@ -36,21 +36,29 @@ def auth_get(category: str = None):
 def get_department_posts(dept_id: int):
     import random
     
-    # Generate 25 posts per department
-    it_roles = ["Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer", "Data Scientist", "ML Engineer", "DevOps Engineer", "Cloud Architect", "UI/UX Designer", "Product Designer", "QA Engineer", "Security Analyst", "Database Admin", "System Admin", "Network Engineer", "Mobile Developer", "Game Developer", "AI Researcher", "Blockchain Developer", "Cybersecurity Specialist", "Site Reliability Engineer", "Technical Writer", "Solutions Architect", "Data Engineer", "Platform Engineer"]
+    # Define roles for all 8 departments
+    dept_roles = {
+        1: ["Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer", "Data Scientist", "ML Engineer", "DevOps Engineer", "Cloud Architect", "UI/UX Designer", "Product Designer", "QA Engineer", "Security Analyst", "Database Admin", "System Admin", "Network Engineer", "Mobile Developer", "Game Developer", "AI Researcher", "Blockchain Developer", "Cybersecurity Specialist", "Site Reliability Engineer", "Technical Writer", "Solutions Architect", "Data Engineer", "Platform Engineer"],
+        
+        2: ["Investment Banking Analyst", "Credit Analyst", "Risk Management Analyst", "Loan Officer", "Financial Advisor", "Portfolio Manager", "Compliance Officer", "Treasury Analyst", "Audit Associate", "Relationship Manager", "Trade Finance Specialist", "Derivatives Trader", "Equity Research Analyst", "Fixed Income Analyst", "Wealth Management Advisor", "Corporate Banking Associate", "Retail Banking Officer", "Digital Banking Specialist", "Anti-Money Laundering Analyst", "Credit Risk Analyst", "Market Risk Analyst", "Operations Analyst", "Product Manager - Banking", "Business Analyst - Finance", "Quantitative Analyst"],
+        
+        3: ["Brand Manager", "Product Manager", "Marketing Executive", "Sales Representative", "Supply Chain Analyst", "Quality Control Specialist", "Market Research Analyst", "Category Manager", "Trade Marketing Executive", "Digital Marketing Specialist", "Consumer Insights Analyst", "Demand Planner", "Procurement Specialist", "Distribution Manager", "Key Account Manager", "Retail Operations Executive", "Merchandising Executive", "Pricing Analyst", "Promotions Manager", "Channel Development Executive", "Customer Service Representative", "Inventory Analyst", "Logistics Coordinator", "Export-Import Executive", "Business Development Associate"],
+        
+        4: ["Petroleum Engineer", "Reservoir Engineer", "Drilling Engineer", "Production Engineer", "Geologist", "Geophysicist", "Process Engineer", "Safety Engineer", "Environmental Engineer", "Pipeline Engineer", "Refinery Operations Trainee", "HSE Specialist", "Project Engineer", "Maintenance Engineer", "Instrumentation Engineer", "Chemical Engineer", "Mechanical Engineer", "Electrical Engineer", "Civil Engineer", "Corrosion Engineer", "Facilities Engineer", "Operations Technician", "Laboratory Analyst", "Supply Chain Coordinator", "Commercial Analyst"],
+        
+        5: ["Production Engineer", "Quality Engineer", "Process Engineer", "Manufacturing Engineer", "Industrial Engineer", "Mechanical Engineer", "Electrical Engineer", "Automation Engineer", "Maintenance Engineer", "Safety Engineer", "Supply Chain Analyst", "Procurement Specialist", "Inventory Control Specialist", "Production Planner", "Quality Control Inspector", "Lean Manufacturing Specialist", "Operations Analyst", "Plant Manager Trainee", "Materials Engineer", "Design Engineer", "R&D Engineer", "Product Development Engineer", "Cost Analyst", "Logistics Coordinator", "Environmental Engineer"],
+        
+        6: ["Registered Nurse", "Medical Assistant", "Healthcare Administrator", "Clinical Research Coordinator", "Pharmacy Technician", "Medical Technologist", "Radiologic Technologist", "Physical Therapist Assistant", "Occupational Therapy Assistant", "Medical Records Specialist", "Healthcare Data Analyst", "Patient Care Coordinator", "Medical Billing Specialist", "Healthcare IT Specialist", "Quality Assurance Coordinator", "Infection Control Specialist", "Healthcare Marketing Coordinator", "Medical Device Sales Representative", "Clinical Documentation Specialist", "Healthcare Compliance Officer", "Patient Services Representative", "Medical Social Worker", "Healthcare Project Coordinator", "Biomedical Equipment Technician", "Healthcare Financial Analyst"],
+        
+        7: ["Sales Associate", "Store Manager Trainee", "Visual Merchandiser", "Inventory Specialist", "Customer Service Representative", "Cashier", "Stock Associate", "Loss Prevention Specialist", "Buyer Assistant", "Category Analyst", "E-commerce Specialist", "Digital Marketing Coordinator", "Store Operations Coordinator", "Supply Chain Coordinator", "Retail Analyst", "Product Coordinator", "Brand Ambassador", "Training Coordinator", "Store Planner", "Pricing Analyst", "Customer Experience Specialist", "Retail Technology Specialist", "Warehouse Associate", "Distribution Center Associate", "Retail Marketing Assistant"],
+        
+        8: ["Front Desk Associate", "Guest Relations Officer", "Food & Beverage Server", "Housekeeping Supervisor", "Event Coordinator", "Concierge", "Restaurant Manager Trainee", "Kitchen Assistant", "Banquet Coordinator", "Sales Coordinator", "Revenue Management Analyst", "Hotel Operations Trainee", "Maintenance Technician", "Security Officer", "Spa Therapist", "Travel Consultant", "Tour Guide", "Reservation Agent", "Catering Assistant", "Bar Tender", "Hotel Marketing Assistant", "Guest Services Coordinator", "Conference Services Coordinator", "Hospitality Trainer", "Quality Assurance Coordinator"]
+    }
     
-    marketing_roles = ["Digital Marketing Specialist", "Content Writer", "SEO Analyst", "Social Media Manager", "Brand Manager", "Marketing Coordinator", "Email Marketing Specialist", "PPC Specialist", "Content Strategist", "Influencer Marketing Manager", "Marketing Analyst", "Growth Hacker", "Community Manager", "PR Specialist", "Event Coordinator", "Creative Director", "Copywriter", "Video Marketing Specialist", "Affiliate Marketing Manager", "Marketing Automation Specialist", "Brand Strategist", "Market Research Analyst", "Campaign Manager", "Product Marketing Manager", "Digital Content Creator"]
-    
-    finance_roles = ["Financial Analyst", "Investment Analyst", "Accounting Intern", "Tax Associate", "Budget Analyst", "Credit Analyst", "Risk Analyst", "Treasury Analyst", "Audit Associate", "Financial Planner", "Portfolio Manager", "Compliance Officer", "Financial Controller", "Cost Accountant", "Payroll Specialist", "Accounts Payable Clerk", "Accounts Receivable Clerk", "Financial Advisor", "Insurance Underwriter", "Loan Officer", "Investment Banking Analyst", "Equity Research Analyst", "Derivatives Trader", "Financial Consultant", "Corporate Finance Analyst"]
-    
-    hr_roles = ["HR Generalist", "Talent Acquisition Specialist", "Recruiter", "HR Coordinator", "Training Coordinator", "Compensation Analyst", "Benefits Administrator", "Employee Relations Specialist", "HR Business Partner", "Organizational Development Specialist", "Performance Management Specialist", "HR Analytics Specialist", "Diversity & Inclusion Coordinator", "Learning & Development Specialist", "HR Information Systems Analyst", "Payroll Administrator", "HR Compliance Officer", "Talent Management Specialist", "Employee Engagement Coordinator", "HR Operations Specialist", "Workforce Planning Analyst", "HR Project Manager", "Culture & Engagement Manager", "HR Data Analyst", "Change Management Specialist"]
-    
-    role_lists = {1: it_roles, 2: marketing_roles, 3: finance_roles, 4: hr_roles}
-    
-    if dept_id not in role_lists:
+    if dept_id not in dept_roles:
         return {"posts": []}
     
-    roles = role_lists[dept_id]
+    roles = dept_roles[dept_id]
     posts = []
     
     for i, role in enumerate(roles):
