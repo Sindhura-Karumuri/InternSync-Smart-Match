@@ -34,7 +34,14 @@ def auth_get(category: str = None):
 
 @app.get("/departments/{dept_id}/posts")
 def get_department_posts(dept_id: int):
-    return {"posts": [{"id": 1, "title": "Software Engineer", "department": dept_id}]}
+    sample_posts = [
+        {"id": 1, "title": "Software Engineer", "department": dept_id, "description": "Full-stack development role", "applicants": 15},
+        {"id": 2, "title": "Data Scientist", "department": dept_id, "description": "ML and analytics role", "applicants": 8},
+        {"id": 3, "title": "Product Manager", "department": dept_id, "description": "Product strategy and management", "applicants": 12},
+        {"id": 4, "title": "UI/UX Designer", "department": dept_id, "description": "User interface and experience design", "applicants": 6},
+        {"id": 5, "title": "DevOps Engineer", "department": dept_id, "description": "Infrastructure and deployment", "applicants": 4}
+    ]
+    return {"posts": sample_posts}
 
 @app.get("/posts/{post_id}")
 def get_post(post_id: int):
