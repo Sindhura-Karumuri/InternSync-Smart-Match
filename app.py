@@ -157,8 +157,14 @@ def get_selected(dept: str):
 def export_selected(dept: str):
     return {"export_url": "demo-export.csv"}
 
+@app.post("/posts/{post_id}/send_top_emails")
+def send_top_emails(post_id: int, data: dict = None):
+    method = data.get("method", "top_percent") if data else "top_percent"
+    value = data.get("value", 20) if data else 20
+    return {"message": f"Sent emails to top {value}% candidates", "sent_count": 5}
+
 @app.get("/posts/{post_id}/send_top_emails")
-def send_top_emails(post_id: int, method: str = "top_percent", value: int = 20):
+def send_top_emails_get(post_id: int, method: str = "top_percent", value: int = 20):
     return {"message": f"Sent emails to top {value}% candidates", "sent_count": 5}
 
 @app.get("/dashboard")
