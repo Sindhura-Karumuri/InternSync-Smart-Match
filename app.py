@@ -74,7 +74,7 @@ def get_department_posts(dept_id):
             dept_id = 1  # Default to IT department
             
         if dept_id not in roles_by_dept:
-            return {"posts": []}
+            return []
         
         roles = roles_by_dept[dept_id]
         posts = []
@@ -92,9 +92,9 @@ def get_department_posts(dept_id):
                 "duration": "3-6 months"
             })
         
-        return {"posts": posts}
+        return posts
     except Exception as e:
-        return {"error": str(e), "posts": []}
+        return []
 
 @app.get("/posts/{post_id}")
 def get_post(post_id: int):
@@ -109,7 +109,7 @@ def get_applicants(dept_id: int, post_id: int):
         {"id": 2, "name": "Bob Smith", "email": "bob@university.edu", "gpa": 3.6, "major": "Information Technology", "year": "Junior", "post_id": post_id},
         {"id": 3, "name": "Carol Davis", "email": "carol@university.edu", "gpa": 3.9, "major": "Software Engineering", "year": "Senior", "post_id": post_id}
     ]
-    return {"applicants": sample_applicants}
+    return sample_applicants
 
 @app.post("/posts/{post_id}/match")
 def match_post(post_id: int, data: dict):
@@ -141,11 +141,11 @@ def get_applicant(applicant_id: int):
 
 @app.get("/departments/{dept}/rejected")
 def get_rejected(dept: str):
-    return {"rejected": []}
+    return []
 
 @app.get("/departments/{dept}/selected")
 def get_selected(dept: str):
-    return {"selected": []}
+    return []
 
 @app.get("/departments/{dept}/selected/export")
 def export_selected(dept: str):
