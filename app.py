@@ -25,18 +25,7 @@ def health_check():
 def favicon():
     return {"message": "No favicon"}
 
-@app.get("/dashboard")
-def dashboard():
-    return {"message": "Dashboard endpoint", "departments": [
-        {"id": 1, "name": "IT & Software"},
-        {"id": 2, "name": "Banking & Finance"},
-        {"id": 3, "name": "FMCG"},
-        {"id": 4, "name": "Oil & Gas"},
-        {"id": 5, "name": "Manufacturing"},
-        {"id": 6, "name": "Healthcare"},
-        {"id": 7, "name": "Retail"},
-        {"id": 8, "name": "Hospitality"}
-    ]}
+
 
 @app.post("/auth/login")
 def login(credentials: dict):
@@ -101,8 +90,14 @@ def get_post(post_id: int):
     return {"id": post_id, "title": "Sample Role", "description": "Demo post"}
 
 @app.get("/departments/{dept_id}/posts/{post_id}/applicants")
-def get_applicants(dept_id: int, post_id: int):
+def get_applicants(dept_id, post_id: int):
     import random
+    
+    # Handle undefined dept_id
+    try:
+        dept_id = int(dept_id)
+    except (ValueError, TypeError):
+        dept_id = 1
     
     sample_applicants = [
         {"id": 1, "name": "Alice Johnson", "email": "alice@university.edu", "gpa": 3.8, "major": "Computer Science", "year": "Senior", "post_id": post_id},
@@ -150,3 +145,22 @@ def get_selected(dept: str):
 @app.get("/departments/{dept}/selected/export")
 def export_selected(dept: str):
     return {"export_url": "demo-export.csv"}
+
+@app.get("/posts/{post_id}/send_top_emails")
+def send_top_emails(post_id: int, method: str = "top_percent", value: int = 20):
+    return {"message": f"Sent emails to top {value}% candidates", "sent_count": 5}
+
+@app.get("/dashboard")
+def get_dashboard():
+    return {
+        "departments": [
+            {"id": 1, "name": "IT & Software", "posts_count": 5},
+            {"id": 2, "name": "Banking & Finance", "posts_count": 5},
+            {"id": 3, "name": "FMCG", "posts_count": 5},
+            {"id": 4, "name": "Oil & Gas", "posts_count": 5},
+            {"id": 5, "name": "Manufacturing", "posts_count": 5},
+            {"id": 6, "name": "Healthcare", "posts_count": 5},
+            {"id": 7, "name": "Retail", "posts_count": 5},
+            {"id": 8, "name": "Hospitality", "posts_count": 5}
+        ]
+    }
