@@ -44,16 +44,23 @@ def get_department_posts(dept_id):
     try:
         import random
         
-        # Simple roles for each department
+        # Department-specific roles (20+ each)
         roles_by_dept = {
-            1: ["Software Engineer", "Data Scientist", "DevOps Engineer", "UI/UX Designer", "Product Manager"],
-            2: ["Investment Analyst", "Credit Analyst", "Risk Analyst", "Loan Officer", "Financial Advisor"],
-            3: ["Brand Manager", "Product Manager", "Marketing Executive", "Sales Representative", "Supply Chain Analyst"],
-            4: ["Petroleum Engineer", "Reservoir Engineer", "Drilling Engineer", "Geologist", "Process Engineer"],
-            5: ["Production Engineer", "Quality Engineer", "Manufacturing Engineer", "Industrial Engineer", "Safety Engineer"],
-            6: ["Registered Nurse", "Medical Assistant", "Healthcare Administrator", "Clinical Research Coordinator", "Pharmacy Technician"],
-            7: ["Sales Associate", "Store Manager", "Visual Merchandiser", "Inventory Specialist", "Customer Service Representative"],
-            8: ["Front Desk Associate", "Guest Relations Officer", "Event Coordinator", "Food & Beverage Server", "Concierge"]
+            1: ["Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer", "Data Scientist", "ML Engineer", "DevOps Engineer", "Cloud Architect", "UI/UX Designer", "Product Designer", "QA Engineer", "Security Analyst", "Database Admin", "System Admin", "Network Engineer", "Mobile Developer", "Game Developer", "AI Researcher", "Blockchain Developer", "Cybersecurity Specialist", "Site Reliability Engineer", "Technical Writer", "Solutions Architect", "Data Engineer", "Platform Engineer"],
+            
+            2: ["Investment Banking Analyst", "Credit Analyst", "Risk Management Analyst", "Loan Officer", "Financial Advisor", "Portfolio Manager", "Compliance Officer", "Treasury Analyst", "Audit Associate", "Relationship Manager", "Trade Finance Specialist", "Derivatives Trader", "Equity Research Analyst", "Fixed Income Analyst", "Wealth Management Advisor", "Corporate Banking Associate", "Retail Banking Officer", "Digital Banking Specialist", "Anti-Money Laundering Analyst", "Credit Risk Analyst", "Market Risk Analyst", "Operations Analyst", "Product Manager - Banking", "Business Analyst - Finance", "Quantitative Analyst"],
+            
+            3: ["Brand Manager", "Product Manager", "Marketing Executive", "Sales Representative", "Supply Chain Analyst", "Quality Control Specialist", "Market Research Analyst", "Category Manager", "Trade Marketing Executive", "Digital Marketing Specialist", "Consumer Insights Analyst", "Demand Planner", "Procurement Specialist", "Distribution Manager", "Key Account Manager", "Retail Operations Executive", "Merchandising Executive", "Pricing Analyst", "Promotions Manager", "Channel Development Executive", "Customer Service Representative", "Inventory Analyst", "Logistics Coordinator", "Export-Import Executive", "Business Development Associate"],
+            
+            4: ["Petroleum Engineer", "Reservoir Engineer", "Drilling Engineer", "Production Engineer", "Geologist", "Geophysicist", "Process Engineer", "Safety Engineer", "Environmental Engineer", "Pipeline Engineer", "Refinery Operations Trainee", "HSE Specialist", "Project Engineer", "Maintenance Engineer", "Instrumentation Engineer", "Chemical Engineer", "Mechanical Engineer", "Electrical Engineer", "Civil Engineer", "Corrosion Engineer", "Facilities Engineer", "Operations Technician", "Laboratory Analyst", "Supply Chain Coordinator", "Commercial Analyst"],
+            
+            5: ["Production Engineer", "Quality Engineer", "Process Engineer", "Manufacturing Engineer", "Industrial Engineer", "Mechanical Engineer", "Electrical Engineer", "Automation Engineer", "Maintenance Engineer", "Safety Engineer", "Supply Chain Analyst", "Procurement Specialist", "Inventory Control Specialist", "Production Planner", "Quality Control Inspector", "Lean Manufacturing Specialist", "Operations Analyst", "Plant Manager Trainee", "Materials Engineer", "Design Engineer", "R&D Engineer", "Product Development Engineer", "Cost Analyst", "Logistics Coordinator", "Environmental Engineer"],
+            
+            6: ["Registered Nurse", "Medical Assistant", "Healthcare Administrator", "Clinical Research Coordinator", "Pharmacy Technician", "Medical Technologist", "Radiologic Technologist", "Physical Therapist Assistant", "Occupational Therapy Assistant", "Medical Records Specialist", "Healthcare Data Analyst", "Patient Care Coordinator", "Medical Billing Specialist", "Healthcare IT Specialist", "Quality Assurance Coordinator", "Infection Control Specialist", "Healthcare Marketing Coordinator", "Medical Device Sales Representative", "Clinical Documentation Specialist", "Healthcare Compliance Officer", "Patient Services Representative", "Medical Social Worker", "Healthcare Project Coordinator", "Biomedical Equipment Technician", "Healthcare Financial Analyst"],
+            
+            7: ["Sales Associate", "Store Manager Trainee", "Visual Merchandiser", "Inventory Specialist", "Customer Service Representative", "Cashier", "Stock Associate", "Loss Prevention Specialist", "Buyer Assistant", "Category Analyst", "E-commerce Specialist", "Digital Marketing Coordinator", "Store Operations Coordinator", "Supply Chain Coordinator", "Retail Analyst", "Product Coordinator", "Brand Ambassador", "Training Coordinator", "Store Planner", "Pricing Analyst", "Customer Experience Specialist", "Retail Technology Specialist", "Warehouse Associate", "Distribution Center Associate", "Retail Marketing Assistant"],
+            
+            8: ["Front Desk Associate", "Guest Relations Officer", "Food & Beverage Server", "Housekeeping Supervisor", "Event Coordinator", "Concierge", "Restaurant Manager Trainee", "Kitchen Assistant", "Banquet Coordinator", "Sales Coordinator", "Revenue Management Analyst", "Hotel Operations Trainee", "Maintenance Technician", "Security Officer", "Spa Therapist", "Travel Consultant", "Tour Guide", "Reservation Agent", "Catering Assistant", "Bar Tender", "Hotel Marketing Assistant", "Guest Services Coordinator", "Conference Services Coordinator", "Hospitality Trainer", "Quality Assurance Coordinator"]
         }
         
         # Handle string or undefined dept_id
@@ -69,7 +76,7 @@ def get_department_posts(dept_id):
         posts = []
         
         for i, role in enumerate(roles):
-            post_id = (dept_id - 1) * 5 + i + 1
+            post_id = (dept_id - 1) * 25 + i + 1
             posts.append({
                 "id": post_id,
                 "title": role,
