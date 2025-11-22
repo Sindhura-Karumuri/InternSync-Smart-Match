@@ -137,6 +137,10 @@ def send_tiebreak(post_id: int, data: dict):
 def reject_applicant(post_id: int, data: dict):
     return {"message": "Applicant rejected"}
 
+@app.post("/posts/{post_id}/select")
+def select_applicant(post_id: int, data: dict):
+    return {"message": "Applicant selected", "post_id": post_id}
+
 @app.get("/applicants/{applicant_id}")
 def get_applicant(applicant_id: int):
     return {"id": applicant_id, "name": "Sample Student", "email": "student@university.edu", "gpa": 3.7, "major": "Computer Science"}
