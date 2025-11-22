@@ -20,6 +20,19 @@ def read_root():
 def health_check():
     return {"status": "healthy"}
 
+@app.get("/dashboard")
+def dashboard():
+    return {"message": "Dashboard endpoint", "departments": [
+        {"id": 1, "name": "IT & Software"},
+        {"id": 2, "name": "Banking & Finance"},
+        {"id": 3, "name": "FMCG"},
+        {"id": 4, "name": "Oil & Gas"},
+        {"id": 5, "name": "Manufacturing"},
+        {"id": 6, "name": "Healthcare"},
+        {"id": 7, "name": "Retail"},
+        {"id": 8, "name": "Hospitality"}
+    ]}
+
 @app.post("/auth/login")
 def login(credentials: dict):
     return {"message": "Login successful", "token": "demo-token", "user": {"id": 1, "name": "Demo User"}}
@@ -33,7 +46,7 @@ def auth_get(category: str = None):
     return {"message": "Auth endpoint", "category": category, "data": []}
 
 @app.get("/departments/{dept_id}/posts")
-def get_department_posts(dept_id: int):
+def get_department_posts(dept_id):
     try:
         import random
         
@@ -49,6 +62,12 @@ def get_department_posts(dept_id: int):
             8: ["Front Desk Associate", "Guest Relations Officer", "Event Coordinator", "Food & Beverage Server", "Concierge"]
         }
         
+        # Handle string or undefined dept_id
+        try:
+            dept_id = int(dept_id)
+        except (ValueError, TypeError):
+            dept_id = 1  # Default to IT department
+            
         if dept_id not in roles_by_dept:
             return {"posts": []}
         
