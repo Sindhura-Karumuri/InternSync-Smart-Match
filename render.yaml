@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: pm-internship-backend
+    env: python
+    rootDir: pm-internship-prototype2
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pm-internship-db
+          property: connectionString
+      - key: ENVIRONMENT
+        value: production
+
+databases:
+  - name: pm-internship-db
+    databaseName: pm_internship
+    user: postgres
