@@ -1,30 +1,29 @@
-import sys
-import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-# Add backend to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'pm-internship-prototype2', 'backend'))
+app = FastAPI(title="PM Internship Backend")
 
-try:
-    # Import the FastAPI app
-    from main import app
-except ImportError:
-    # Fallback: create a simple FastAPI app
-    from fastapi import FastAPI
-    app = FastAPI()
-    
-    @app.get("/")
-    def read_root():
-        return {"message": "PM Internship Backend API", "status": "running"}
-    
-    @app.get("/health")
-    def health_check():
-        return {"status": "healthy"}
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# Add health check to any app
-if hasattr(app, 'get'):
-    @app.get("/health")
-    def health_check():
-        return {"status": "healthy"}
+@app.get("/")
+def read_root():
+    return {"message": "PM Internship Backend API", "status": "running"}
 
-# Expose the app for uvicorn
-app = app
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
+
+@app.get("/auth/login")
+def login():
+    return {"message": "Login endpoint", "status": "available"}
+
+@app.get("/auth")
+def auth():
+    return {"message": "Auth endpoint", "status": "available"}
