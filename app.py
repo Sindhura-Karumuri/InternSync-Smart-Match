@@ -15,6 +15,16 @@ except ImportError:
     @app.get("/")
     def read_root():
         return {"message": "PM Internship Backend API", "status": "running"}
+    
+    @app.get("/health")
+    def health_check():
+        return {"status": "healthy"}
+
+# Add health check to any app
+if hasattr(app, 'get'):
+    @app.get("/health")
+    def health_check():
+        return {"status": "healthy"}
 
 # Expose the app for uvicorn
 app = app
