@@ -504,7 +504,7 @@ export default function PostDetail() {
   const [sendingEmails, setSendingEmails] = useState(false);
   const [emailModal, setEmailModal] = useState({ visible: false, content: "", applicant: null });
 
-  const API_BASE = "http://localhost:8000";
+  const API_BASE = "https://internsync-smart-match.onrender.com";
 
   useEffect(() => {
     async function load() {

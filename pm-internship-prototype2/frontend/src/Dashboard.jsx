@@ -11,7 +11,7 @@ export default function Dashboard() {
 
       try {
         const res = await fetch(
-          `http://localhost:8000/departments/${deptId}/posts`,
+          `https://internsync-smart-match.onrender.com/departments/${deptId}/posts`,
           {
             headers: {
               "Content-Type": "application/json",
