@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 
 app = FastAPI(title="PM Internship Backend")
 
@@ -19,6 +20,10 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+
+@app.get("/favicon.ico")
+def favicon():
+    return {"message": "No favicon"}
 
 @app.get("/dashboard")
 def dashboard():
