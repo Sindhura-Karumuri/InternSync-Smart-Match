@@ -1,6 +1,6 @@
 import axios from "axios";
 const api = axios.create({
-  baseURL: "https://internsync-smart-match.onrender.com",
+  baseURL: "http://localhost:8000",
 });
 api.interceptors.request.use(cfg => {
   const token = localStorage.getItem("token");

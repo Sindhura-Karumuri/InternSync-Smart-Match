@@ -504,7 +504,7 @@ export default function PostDetail() {
   const [sendingEmails, setSendingEmails] = useState(false);
   const [emailModal, setEmailModal] = useState({ visible: false, content: "", applicant: null });
 
-  const API_BASE = "https://internsync-smart-match.onrender.com";
+  const API_BASE = "http://localhost:8000";
 
   useEffect(() => {
     async function load() {
@@ -582,6 +582,7 @@ export default function PostDetail() {
 
   async function selectAllTopApplicants() {
     try {
+      let selectedCount = 0;
       for (let a of topApplicants) {
         if (a.status !== "selected") {
           await fetch(`${API_BASE}/posts/${postId}/select`, {
@@ -589,9 +590,10 @@ export default function PostDetail() {
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
             body: JSON.stringify({ applicant_id: a.id || a.applicant_id }),
           });
+          selectedCount++;
         }
       }
-      alert("All top candidates selected successfully!");
+      alert(`${selectedCount} top candidates selected successfully!`);
       reloadApplicants();
     } catch (err) {
       console.error(err);
@@ -601,6 +603,9 @@ export default function PostDetail() {
 
   async function selectApplicant(appId) {
     try {
+      // Find the candidate first to get their name
+      const candidate = apps.find(a => (a.id || a.applicant_id) === appId);
+      
       const res = await fetch(`${API_BASE}/posts/${postId}/select`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -608,7 +613,7 @@ export default function PostDetail() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Failed to select candidate");
-      alert(`Candidate ${data.candidate?.name || 'Unknown'} selected!`);
+      alert(`Candidate ${candidate?.name || data.candidate?.name || 'Unknown'} selected!`);
       reloadApplicants();
     } catch (err) {
       console.error(err);
@@ -618,6 +623,9 @@ export default function PostDetail() {
 
   async function rejectApplicant(appId) {
     try {
+      // Find the candidate first to get their name
+      const candidate = apps.find(a => (a.id || a.applicant_id) === appId);
+      
       const res = await fetch(`${API_BASE}/posts/${postId}/reject`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -625,7 +633,7 @@ export default function PostDetail() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Failed to reject candidate");
-      alert(`Candidate ${data.candidate?.name || 'Unknown'} rejected!`);
+      alert(`Candidate ${candidate?.name || data.candidate?.name || 'Unknown'} rejected!`);
       reloadApplicants();
     } catch (err) {
       console.error(err);
