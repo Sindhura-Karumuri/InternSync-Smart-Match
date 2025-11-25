@@ -72,7 +72,7 @@ export default function SelectedTab() {
   function openScheduleModal(applicant) {
     const datetime = new Date();
     const formatted = datetime.toISOString().slice(0, 16); // default datetime
-    const emailContent = `Subject: Interview Scheduled\n\nDear ${applicant.name},\n\nYour interview for the post has been scheduled on ${formatted}.\n\nJoin Link: [Link here]\n\nRegards,\nRecruitment Team`;
+    const emailContent = `Subject: Interview Scheduled\n\nDear ${applicant?.name || 'Candidate'},\n\nYour interview for the post has been scheduled on ${formatted}.\n\nJoin Link: [Link here]\n\nRegards,\nRecruitment Team`;
     setScheduleModal({
       visible: true,
       applicant,
@@ -169,8 +169,8 @@ export default function SelectedTab() {
               <div key={s.id + s.post_id} className={`${darkTheme ? "bg-gray-800" : "bg-white"} p-6 rounded-2xl shadow-md hover:shadow-lg transition-all transform hover:scale-[1.01]`}>
                 <div className="flex justify-between items-start">
                   <div className="flex-1 pr-6">
-                    <h2 className={`${darkTheme ? "text-gray-100" : "text-gray-800"} text-xl font-bold`}>{s.name}</h2>
-                    <p className={`${darkTheme ? "text-gray-300" : "text-gray-600"} text-sm`}>{s.email}</p>
+                    <h2 className={`${darkTheme ? "text-gray-100" : "text-gray-800"} text-xl font-bold`}>{s?.name || 'Unknown Candidate'}</h2>
+                    <p className={`${darkTheme ? "text-gray-300" : "text-gray-600"} text-sm`}>{s?.email || 'No email'}</p>
                     <p className={`${darkTheme ? "text-gray-400" : "text-gray-500"} text-sm mt-1`}>
                       Post: <span className="font-medium text-indigo-600">{s.post_id}</span>
                     </p>
@@ -204,7 +204,7 @@ export default function SelectedTab() {
                     <div className="space-y-2">
                       {meetingsByCandidate[s.id].map((m) => (
                         <div key={m.meeting_id} className={`flex justify-between items-center p-3 rounded-lg border ${darkTheme ? "bg-gray-700 border-gray-600 text-gray-200" : "bg-slate-50 border-gray-200 text-gray-700"}`}>
-                          <div className="text-sm">{s.name} — {safeDateDisplay(m.datetime)} {m.note ? `· ${m.note}` : ""}</div>
+                          <div className="text-sm">{s?.name || 'Unknown'} — {safeDateDisplay(m?.datetime)} {m?.note ? `· ${m.note}` : ""}</div>
                           <a className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700" href={m.join_url} target="_blank" rel="noreferrer">Join</a>
                         </div>
                       ))}
@@ -247,7 +247,7 @@ export default function SelectedTab() {
 
       <label className={`${darkTheme ? "text-gray-200" : "text-gray-700"} block text-sm mb-1`}>Email Preview</label>
       <textarea
-        value={`Subject: Interview Scheduled\n\nDear ${scheduleModal.applicant.name},\n\nYour interview for the post has been scheduled on ${scheduleModal.datetime}.\n\nJoin Link: ${scheduleModal.joinLink || "[Link here]"}\n\nRegards,\nRecruitment Team`}
+        value={`Subject: Interview Scheduled\n\nDear ${scheduleModal.applicant?.name || 'Candidate'},\n\nYour interview for the post has been scheduled on ${scheduleModal.datetime}.\n\nJoin Link: ${scheduleModal.joinLink || "[Link here]"}\n\nRegards,\nRecruitment Team`}
         readOnly
         rows={6}
         className={`${darkTheme ? "bg-gray-700 text-gray-100 border-gray-600 placeholder-gray-400" : "bg-gray-100 text-gray-800 border-gray-300"} w-full px-3 py-2 border rounded mb-4`}

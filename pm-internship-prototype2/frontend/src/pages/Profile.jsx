@@ -72,14 +72,14 @@ export default function Profile() {
           {/* Header */}
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-teal-500 text-white text-2xl font-bold">
-              {data.name?.charAt(0).toUpperCase()}
+              {data?.name?.charAt(0)?.toUpperCase() || 'U'}
             </div>
             <div>
               <h1 className={`text-2xl font-bold flex items-center gap-2 ${textPrimary}`}>
-                <User className="w-5 h-5 text-indigo-400" /> {data.name}
+                <User className="w-5 h-5 text-indigo-400" /> {data?.name || 'Unknown User'}
               </h1>
               <div className="flex items-center gap-2 text-gray-300 dark:text-gray-400">
-                <Mail className="w-4 h-4" /> {data.email}
+                <Mail className="w-4 h-4" /> {data?.email || 'No email provided'}
               </div>
             </div>
           </div>

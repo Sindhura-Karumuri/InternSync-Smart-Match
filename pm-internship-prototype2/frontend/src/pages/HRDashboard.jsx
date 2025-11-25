@@ -84,8 +84,8 @@ export default function HRDashboard() {
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h2 className="text-xl font-semibold">{p.title}</h2>
-                    <p className="text-sm mt-1 text-gray-500 dark:text-gray-400">{p.description}</p>
+                    <h2 className="text-xl font-semibold">{p?.title || 'Untitled Post'}</h2>
+                    <p className="text-sm mt-1 text-gray-500 dark:text-gray-400">{p?.description || 'No description'}</p>
                     <div className="flex flex-wrap gap-2 mt-3">
                       {p.stipend && (
                         <span

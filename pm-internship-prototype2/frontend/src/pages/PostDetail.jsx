@@ -608,7 +608,7 @@ export default function PostDetail() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Failed to select candidate");
-      alert(`Candidate ${data.candidate.name} selected!`);
+      alert(`Candidate ${data.candidate?.name || 'Unknown'} selected!`);
       reloadApplicants();
     } catch (err) {
       console.error(err);
@@ -625,7 +625,7 @@ export default function PostDetail() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Failed to reject candidate");
-      alert(`Candidate ${data.candidate.name} rejected!`);
+      alert(`Candidate ${data.candidate?.name || 'Unknown'} rejected!`);
       reloadApplicants();
     } catch (err) {
       console.error(err);
@@ -650,7 +650,7 @@ export default function PostDetail() {
       });
       const m = await api.get(`/posts/${postId}/meetings`);
       setMeetings(m.data);
-      alert(`Interview scheduled and email sent to ${applicant.name}`);
+      alert(`Interview scheduled and email sent to ${applicant?.name || 'candidate'}`);
     } catch (err) {
       console.error(err);
       alert("Failed to schedule interview: " + (err?.response?.data?.detail || err.message));
@@ -805,7 +805,7 @@ export default function PostDetail() {
       {scheduleModal.visible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-[90%] max-w-md shadow-lg relative text-gray-900 dark:text-gray-100">
-            <h3 className="text-lg font-semibold mb-4">Schedule Interview - {scheduleModal.applicant.name}</h3>
+            <h3 className="text-lg font-semibold mb-4">Schedule Interview - {scheduleModal.applicant?.name || 'Unknown'}</h3>
             <label className="block mb-2 text-sm font-medium">Select Date & Time</label>
             <input
               type="datetime-local"
@@ -816,13 +816,13 @@ export default function PostDetail() {
 
             <h4 className="font-semibold mb-2">Email Preview:</h4>
             <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded mb-4 text-sm whitespace-pre-line">
-              {`Subject: Interview Invitation for ${post.title}\n\nHello ${scheduleModal.applicant.name},\n\nYou have been shortlisted for the ${post.title} position.\nInterview Date & Time: ${scheduleModal.datetime || "[Select Date & Time]"}\n\nRegards,\n${post.company_name || "HR"}`}
+              {`Subject: Interview Invitation for ${post?.title || 'Position'}\n\nHello ${scheduleModal.applicant?.name || 'Candidate'},\n\nYou have been shortlisted for the ${post?.title || 'Position'} position.\nInterview Date & Time: ${scheduleModal.datetime || "[Select Date & Time]"}\n\nRegards,\n${post?.company_name || "HR"}`}
             </div>
 
             <div className="flex justify-end gap-3">
               <button onClick={() => setScheduleModal({ visible: false, applicant: null, datetime: "" })} className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600">Close</button>
               <button
-                onClick={() => { alert(`Email sent to ${scheduleModal.applicant.name}`); setScheduleModal({ visible: false, applicant: null, datetime: "" }); }}
+                onClick={() => { alert(`Email sent to ${scheduleModal.applicant?.name || 'candidate'}`); setScheduleModal({ visible: false, applicant: null, datetime: "" }); }}
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
               >
                 Send Email

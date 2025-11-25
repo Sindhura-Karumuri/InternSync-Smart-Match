@@ -75,10 +75,10 @@ export default function RejectedTab() {
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className={`${darkTheme ? "text-gray-100" : "text-gray-800"} text-lg font-semibold`}>
-                      {c.name}
+                      {c?.name || 'Unknown Candidate'}
                     </h2>
                     <p className={`${darkTheme ? "text-gray-300" : "text-gray-600"} text-sm`}>
-                      {c.email}
+                      {c?.email || 'No email'}
                     </p>
                     <p className={`${darkTheme ? "text-gray-400" : "text-gray-500"} text-sm mt-1`}>
                       Post: <span className="font-medium">{c.post_id}</span>
