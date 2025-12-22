@@ -1,7 +1,8 @@
 // src/pages/SelectedTab.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
-import { Download, Calendar, XCircle, Sun, Moon } from "lucide-react";
+import { Download, Calendar, CheckCircle, Sun, Moon, ArrowLeft, XCircle } from "lucide-react";
 
 export default function SelectedTab() {
   const dept = localStorage.getItem("department_id");
@@ -16,6 +17,7 @@ export default function SelectedTab() {
     joinLink: "",
   });
   const [darkTheme, setDarkTheme] = useState(true); // default dark theme
+  const navigate = useNavigate();
 
   useEffect(() => {
     load();
@@ -53,6 +55,10 @@ export default function SelectedTab() {
 
   async function downloadCSV() {
     try {
+      const token = localStorage.getItem("token");
+      console.log("Token:", token ? "Present" : "Missing");
+      console.log("Department:", dept);
+      
       const r = await api.get(`/departments/${dept}/selected/export`, {
         responseType: "blob",
       });
@@ -64,8 +70,14 @@ export default function SelectedTab() {
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error(err);
-      alert("Export failed");
+      console.error("Export error:", err);
+      if (err.response?.status === 401) {
+        alert("Authentication failed. Please login again.");
+        localStorage.clear();
+        window.location.href = "/";
+      } else {
+        alert("Export failed: " + (err.response?.data?.detail || err.message));
+      }
     }
   }
 
@@ -134,14 +146,26 @@ export default function SelectedTab() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-10">
-          <div>
-            <h1 className="text-3xl font-extrabold flex items-center gap-2">
-              <XCircle className={`${darkTheme ? "text-red-400" : "text-red-500"} w-8 h-8`} />
-              Selected Candidates
-            </h1>
-            <p className={`${darkTheme ? "text-gray-300" : "text-gray-600"} text-sm mt-1`}>
-              Department: <span className="font-semibold text-emerald-700">{dept}</span>
-            </p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate("/hr/dashboard")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                darkTheme 
+                  ? "bg-gray-700 hover:bg-gray-600 text-gray-100" 
+                  : "bg-gray-600 hover:bg-gray-700 text-white"
+              }`}
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            </button>
+            <div>
+              <h1 className="text-3xl font-extrabold flex items-center gap-2">
+                <CheckCircle className={`${darkTheme ? "text-green-400" : "text-green-500"} w-8 h-8`} />
+                Selected Candidates
+              </h1>
+              <p className={`${darkTheme ? "text-gray-300" : "text-gray-600"} text-sm mt-1`}>
+                Department: <span className="font-semibold text-emerald-700">{dept}</span>
+              </p>
+            </div>
           </div>
 
           <div className="flex gap-3">

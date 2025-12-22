@@ -1,12 +1,14 @@
 // src/pages/RejectedTab.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
-import { XCircle, Sun, Moon } from "lucide-react";
+import { XCircle, Sun, Moon, ArrowLeft } from "lucide-react";
 
 export default function RejectedTab() {
   const dept = localStorage.getItem("department_id");
   const [list, setList] = useState([]);
   const [darkTheme, setDarkTheme] = useState(true); // default dark
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function load() {
@@ -34,14 +36,26 @@ export default function RejectedTab() {
       <div className="max-w-5xl mx-auto">
         {/* Header with Theme Toggle */}
         <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <XCircle className={`w-8 h-8 ${darkTheme ? "text-red-400" : "text-red-500"}`} />
-              Rejected Candidates
-            </h1>
-            <p className={`${darkTheme ? "text-gray-300" : "text-gray-600"} text-sm`}>
-              Department: <span className="font-medium">{dept}</span>
-            </p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate("/hr/dashboard")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                darkTheme 
+                  ? "bg-gray-700 hover:bg-gray-600 text-gray-100" 
+                  : "bg-gray-600 hover:bg-gray-700 text-white"
+              }`}
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            </button>
+            <div>
+              <h1 className="text-3xl font-bold flex items-center gap-2">
+                <XCircle className={`w-8 h-8 ${darkTheme ? "text-red-400" : "text-red-500"}`} />
+                Rejected Candidates
+              </h1>
+              <p className={`${darkTheme ? "text-gray-300" : "text-gray-600"} text-sm`}>
+                Department: <span className="font-medium">{dept}</span>
+              </p>
+            </div>
           </div>
 
           {/* Theme Toggle Button */}

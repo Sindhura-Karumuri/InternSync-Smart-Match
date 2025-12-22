@@ -523,30 +523,44 @@ export default function PostDetail() {
     load();
   }, [postId, deptId]);
 
-  async function runMatch(option) {
-    try {
-      const r = await api.post(`/posts/${postId}/match`, { mode: option });
-      let top = r.data?.matched_top ?? [];
+ async function runMatch(option) {
+  try {
+    const r = await api.post(`/posts/${postId}/match`, { mode: option });
 
-      if (top.length === 0) {
-        top = [...apps].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-      }
+    await reloadApplicants();
 
-      if (option === "positions") {
-        const numPositions = post?.positions ?? 0;
-        setTopApplicants(top.slice(0, numPositions));
-      } else {
-        const percent = parseInt(option.replace("%", ""));
-        const count = Math.ceil((percent / 100) * top.length);
-        setTopApplicants(top.slice(0, count));
-      }
+    let allScored = r.data?.matched_top ?? [];
 
-      setMatched(r.data);
-    } catch (err) {
-      console.error(err);
-      alert("AI match failed: " + (err?.response?.data?.detail || err.message));
+    if (allScored.length === 0) {
+      const updatedApps = await api.get(`/departments/${deptId}/posts/${postId}/applicants`);
+      allScored = [...updatedApps.data].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
     }
+
+    // Calculate top candidates based on selected option and AI scores
+    let selectedCandidates = [];
+    if (option === "positions") {
+      const numPositions = post?.positions ?? 0;
+      selectedCandidates = allScored.slice(0, numPositions);
+    } else {
+      const percent = parseInt(option.replace("%", ""));
+      const count = Math.ceil((percent / 100) * allScored.length);
+      selectedCandidates = allScored.slice(0, count);
+    }
+
+    setTopApplicants(selectedCandidates);
+    setMatched(r.data);
+    
+    // Show algorithm info with selection details
+    if (r.data?.algorithm) {
+      const selectionType = option === 'positions' ? `top ${post?.positions} positions` : `top ${option}`;
+      alert(`✅ AI Matching Complete!\n\nAlgorithm: ${r.data.algorithm}\n${r.data.description || ''}\n\nTotal scored: ${allScored.length} candidates\nSelected for display: ${selectedCandidates.length} candidates (${selectionType})\n\nCandidates are ranked by AI score from highest to lowest.`);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("AI match failed");
   }
+}
+
 
   async function sendEmails() {
     try {
@@ -583,18 +597,42 @@ export default function PostDetail() {
   async function selectAllTopApplicants() {
     try {
       let selectedCount = 0;
-      for (let a of topApplicants) {
+      const positionsAvailable = (post?.positions || 0) - (post?.positions_filled || 0);
+      
+      if (positionsAvailable <= 0) {
+        alert("No positions available for selection.");
+        return;
+      }
+
+      // Select candidates up to available positions
+      const candidatesToSelect = topApplicants.slice(0, positionsAvailable);
+      
+      for (let a of candidatesToSelect) {
         if (a.status !== "selected") {
-          await fetch(`${API_BASE}/posts/${postId}/select`, {
+          const res = await fetch(`${API_BASE}/posts/${postId}/select`, {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
             body: JSON.stringify({ applicant_id: a.id || a.applicant_id }),
           });
-          selectedCount++;
+          
+          if (res.ok) {
+            selectedCount++;
+            // Update local state immediately
+            a.status = "selected";
+          }
         }
       }
-      alert(`${selectedCount} top candidates selected successfully!`);
-      reloadApplicants();
+      
+      const allPositionsFilled = (post?.positions_filled || 0) + selectedCount >= (post?.positions || 0);
+      
+      alert(`${selectedCount} top candidates selected successfully!${allPositionsFilled ? ' All positions filled - position will be closed.' : ''}`);
+      
+      // Update the topApplicants state to reflect selections
+      setTopApplicants(prev => prev.map(a => 
+        candidatesToSelect.find(c => c.id === a.id) ? { ...a, status: "selected" } : a
+      ));
+      
+      await reloadApplicants();
     } catch (err) {
       console.error(err);
       alert("Failed to select top candidates: " + err.message);
@@ -720,7 +758,19 @@ export default function PostDetail() {
           </button>
 
           {topApplicants.length > 0 && (
-            <button onClick={selectAllTopApplicants} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Select All Top Candidates</button>
+            <button 
+              onClick={selectAllTopApplicants} 
+              disabled={topApplicants.every(a => a.status === "selected") || (post?.positions_filled >= post?.positions)}
+              className={`px-4 py-2 rounded transition ${
+                topApplicants.every(a => a.status === "selected") || (post?.positions_filled >= post?.positions)
+                  ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
+            >
+              {topApplicants.every(a => a.status === "selected") ? "All Selected" : 
+               (post?.positions_filled >= post?.positions) ? "Position Closed" : 
+               "Select All Top Candidates"}
+            </button>
           )}
 
           <button onClick={createTieBreak} className="px-5 py-2 rounded-lg bg-amber-500 text-white font-medium shadow hover:bg-amber-600 transition">Generate Tie-break Tests</button>
@@ -746,7 +796,21 @@ export default function PostDetail() {
       {/* Top Applicants Table */}
       {topApplicants.length > 0 && (
         <div className="mt-6 bg-white dark:bg-gray-800 p-6 rounded-xl shadow overflow-x-auto">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Top Candidates ({matchOption})</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Top Candidates ({matchOption})</h3>
+            {matched?.algorithm && (
+              <div className="bg-blue-50 dark:bg-blue-900 px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-700">
+                <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                  ✅ Algorithm: {matched.algorithm}
+                </p>
+                {matched.description && (
+                  <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
+                    {matched.description}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
           <table className="w-full min-w-[700px] table-auto border-collapse text-gray-800 dark:text-gray-200">
             <thead className="bg-gray-100 dark:bg-gray-700">
               <tr>
@@ -771,9 +835,27 @@ export default function PostDetail() {
                   <td className="px-3 py-2 border font-medium text-teal-700 dark:text-teal-300">{a.score ?? "N/A"}</td>
                   <td className="px-3 py-2 border">{a.status || "Pending"}</td>
                   <td className="px-3 py-2 border flex flex-wrap gap-1">
-                    <button onClick={() => selectApplicant(a.id || a.applicant_id)} className="px-2 py-1 text-xs bg-teal-600 text-white rounded hover:bg-teal-700 transition">Select</button>
-                    <button onClick={() => rejectApplicant(a.id || a.applicant_id)} className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition">Reject</button>
-                    <button onClick={() => setScheduleModal({ visible: true, applicant: a, datetime: "" })} className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">Schedule Interview</button>
+                    {a.status === "selected" ? (
+                      <span className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded">Selected</span>
+                    ) : a.status === "rejected" ? (
+                      <span className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded">Rejected</span>
+                    ) : (
+                      <>
+                        <button 
+                          onClick={() => selectApplicant(a.id || a.applicant_id)} 
+                          disabled={post?.positions_filled >= post?.positions}
+                          className={`px-2 py-1 text-xs rounded transition ${
+                            post?.positions_filled >= post?.positions
+                              ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                              : "bg-teal-600 text-white hover:bg-teal-700"
+                          }`}
+                        >
+                          {post?.positions_filled >= post?.positions ? "Closed" : "Select"}
+                        </button>
+                        <button onClick={() => rejectApplicant(a.id || a.applicant_id)} className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition">Reject</button>
+                        <button onClick={() => setScheduleModal({ visible: true, applicant: a, datetime: "" })} className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">Schedule Interview</button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}

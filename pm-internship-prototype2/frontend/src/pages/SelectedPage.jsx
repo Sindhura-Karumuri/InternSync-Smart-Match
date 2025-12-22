@@ -1,14 +1,23 @@
 // src/pages/SelectedPage.jsx
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import * as XLSX from "xlsx";
-import { Download, User } from "lucide-react";
+import { Download, User, ArrowLeft } from "lucide-react";
 
 const SelectedPage = ({ selectedCandidates }) => {
+  const navigate = useNavigate();
+
   if (!selectedCandidates || selectedCandidates.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center p-10 bg-gradient-to-br from-gray-50 via-slate-50 to-emerald-50">
+        <Button
+          onClick={() => navigate("/hr/dashboard")}
+          className="absolute top-6 left-6 bg-gray-600 hover:bg-gray-700 flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+        </Button>
         <div className="w-24 h-24 mb-6 flex items-center justify-center rounded-full bg-slate-100 shadow-inner">
           <User className="w-12 h-12 text-slate-400" />
         </div>
@@ -35,14 +44,22 @@ const SelectedPage = ({ selectedCandidates }) => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-10">
-          <div>
-            <h2 className="text-3xl font-extrabold text-gray-800">
-              Selected Candidates
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              {selectedCandidates.length} candidate
-              {selectedCandidates.length > 1 ? "s" : ""} selected
-            </p>
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={() => navigate("/hr/dashboard")}
+              className="bg-gray-600 hover:bg-gray-700 flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back
+            </Button>
+            <div>
+              <h2 className="text-3xl font-extrabold text-gray-800">
+                Selected Candidates
+              </h2>
+              <p className="text-gray-600 text-sm mt-1">
+                {selectedCandidates.length} candidate
+                {selectedCandidates.length > 1 ? "s" : ""} selected
+              </p>
+            </div>
           </div>
           <Button
             onClick={handleExport}

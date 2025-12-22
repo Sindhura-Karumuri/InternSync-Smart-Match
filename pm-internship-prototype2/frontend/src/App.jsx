@@ -8,6 +8,7 @@ import SelectedTab from "./pages/SelectedTab";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RejectedTab from "./pages/RejectedTab";
+import ClosedInternships from "./pages/ClosedInternships";
 
 export default function App() {
   return (
@@ -47,6 +48,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <RejectedTab />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hr/closed"
+          element={
+            <ProtectedRoute>
+              <ClosedInternships />
             </ProtectedRoute>
           }
         />

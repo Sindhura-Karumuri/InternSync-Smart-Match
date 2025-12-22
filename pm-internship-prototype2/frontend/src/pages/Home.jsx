@@ -61,7 +61,7 @@ export default function Home() {
 
      <section className="py-16 text-center max-w-4xl mx-auto px-6">
         <h1 className="text-4xl font-extrabold bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-          Welcome to the PM Internship Portal
+          Welcome to the Internship Portal
         </h1>
         <p className="text-lg text-gray-700 dark:text-gray-300">
           Explore top departments and manage internships with{" "}
