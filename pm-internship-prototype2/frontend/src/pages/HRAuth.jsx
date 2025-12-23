@@ -10,14 +10,14 @@ function useQuery() {
 
 // ✅ Your exact SEED_HR_USERS list
 const SEED_HR_USERS = [
-  { email: "it.hr@example.com", password: "it12345", name: "IT HR Manager", department_id: "it_software", category: "IT & Software" },
-  { email: "bank.hr@example.com", password: "bank12345", name: "Banking HR Manager", department_id: "banking_finance", category: "Banking & Finance" },
-  { email: "fmcg.hr@example.com", password: "fmcg12345", name: "FMCG HR Manager", department_id: "fmcg", category: "FMCG" },
-  { email: "oil.hr@example.com", password: "oil12345", name: "Oil & Gas HR Manager", department_id: "oil_gas", category: "Oil & Gas" },
-  { email: "mfg.hr@example.com", password: "mfg12345", name: "Manufacturing HR Manager", department_id: "manufacturing", category: "Manufacturing" },
-  { email: "health.hr@example.com", password: "health12345", name: "Healthcare HR Manager", department_id: "healthcare", category: "Healthcare" },
-  { email: "retail.hr@example.com", password: "retail12345", name: "Retail HR Manager", department_id: "retail", category: "Retail" },
-  { email: "hospitality.hr@example.com", password: "hosp12345", name: "Hospitality HR Manager", department_id: "hospitality", category: "Hospitality" }
+  { email: "it.hr@example.com", password: "it12345", name: "Rajesh Kumar", department_id: 1, category: "IT & Software" },
+  { email: "bank.hr@example.com", password: "bank12345", name: "Priya Sharma", department_id: 2, category: "Banking & Finance" },
+  { email: "fmcg.hr@example.com", password: "fmcg12345", name: "Amit Patel", department_id: 3, category: "FMCG" },
+  { email: "oil.hr@example.com", password: "oil12345", name: "Sunita Reddy", department_id: 4, category: "Oil & Gas" },
+  { email: "mfg.hr@example.com", password: "mfg12345", name: "Vikram Singh", department_id: 5, category: "Manufacturing" },
+  { email: "health.hr@example.com", password: "health12345", name: "Dr. Meera Joshi", department_id: 6, category: "Healthcare" },
+  { email: "retail.hr@example.com", password: "retail12345", name: "Neha Gupta", department_id: 7, category: "Retail" },
+  { email: "hospitality.hr@example.com", password: "hosp12345", name: "Arjun Mehta", department_id: 8, category: "Hospitality" }
 ];
 
 // ✅ Get demo credentials by exact category
@@ -38,7 +38,7 @@ export default function HRAuth() {
     email: "",
     password: "",
     name: "",
-    department_id: category.replace(/\s+/g, "_"),
+    department_id: parseInt(category.replace(/\s+/g, "_")) || 1,
   });
 
   const handleUseDemo = () => {

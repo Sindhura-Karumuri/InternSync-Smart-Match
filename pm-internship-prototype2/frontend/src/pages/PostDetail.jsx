@@ -600,7 +600,7 @@ export default function PostDetail() {
       const positionsAvailable = (post?.positions || 0) - (post?.positions_filled || 0);
       
       if (positionsAvailable <= 0) {
-        alert("No positions available for selection.");
+        alert("❌ No positions available for selection. All positions are already filled.");
         return;
       }
 
@@ -625,7 +625,11 @@ export default function PostDetail() {
       
       const allPositionsFilled = (post?.positions_filled || 0) + selectedCount >= (post?.positions || 0);
       
-      alert(`${selectedCount} top candidates selected successfully!${allPositionsFilled ? ' All positions filled - position will be closed.' : ''}`);
+      if (allPositionsFilled) {
+        alert(`🎉 SUCCESS! ${selectedCount} top candidates selected successfully!\n\n✅ All ${post?.positions || 0} positions are now filled.\n🔒 This position will be automatically closed and moved to the closed internships section.\n\n📧 Selected candidates will receive confirmation emails shortly.`);
+      } else {
+        alert(`✅ ${selectedCount} top candidates selected successfully!\n\n📊 Positions Status: ${(post?.positions_filled || 0) + selectedCount}/${post?.positions || 0} filled\n📧 Selected candidates will receive confirmation emails.`);
+      }
       
       // Update the topApplicants state to reflect selections
       setTopApplicants(prev => prev.map(a => 
@@ -635,12 +639,18 @@ export default function PostDetail() {
       await reloadApplicants();
     } catch (err) {
       console.error(err);
-      alert("Failed to select top candidates: " + err.message);
+      alert("❌ Failed to select top candidates: " + err.message);
     }
   }
 
   async function selectApplicant(appId) {
     try {
+      // Check if positions are full before selection
+      if (post?.positions_filled >= post?.positions) {
+        alert("❌ Cannot select candidate. All positions are already filled.");
+        return;
+      }
+
       // Find the candidate first to get their name
       const candidate = apps.find(a => (a.id || a.applicant_id) === appId);
       
@@ -651,11 +661,19 @@ export default function PostDetail() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Failed to select candidate");
-      alert(`Candidate ${candidate?.name || data.candidate?.name || 'Unknown'} selected!`);
+      
+      // Show success message with position status
+      const candidateName = candidate?.name || data.candidate?.name || 'Unknown';
+      const positionStatus = data.position_closed ? 
+        `\n\n🎉 CONGRATULATIONS! All ${data.total_positions} positions are now filled!\n🔒 This position will be automatically closed.` :
+        `\n\n📊 Position Status: ${data.positions_filled}/${data.total_positions} filled`;
+      
+      alert(`✅ SUCCESS! Candidate ${candidateName} has been selected!${positionStatus}\n\n📧 Confirmation email will be sent to the candidate.`);
+      
       reloadApplicants();
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      alert("❌ Selection failed: " + err.message);
     }
   }
 
@@ -671,11 +689,14 @@ export default function PostDetail() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Failed to reject candidate");
-      alert(`Candidate ${candidate?.name || data.candidate?.name || 'Unknown'} rejected!`);
+      
+      const candidateName = candidate?.name || data.candidate?.name || 'Unknown';
+      alert(`❌ Candidate ${candidateName} has been rejected.\n\n📧 Rejection notification will be sent to the candidate.`);
+      
       reloadApplicants();
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      alert("❌ Rejection failed: " + err.message);
     }
   }
 
@@ -733,60 +754,180 @@ export default function PostDetail() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-900 p-8 text-gray-900 dark:text-gray-100">
+      {/* Top Navigation */}
+      <div className="flex items-center gap-4 mb-6">
+        <button 
+          onClick={() => window.location.href = "/hr/dashboard"}
+          className="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition"
+          title="Back to Dashboard"
+        >
+          ←
+        </button>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Post Details</h1>
+      </div>
+
       {/* Post Header */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">{post?.title}</h1>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">{post?.description}</p>
-        <div className="flex flex-wrap gap-4 text-sm">
-          <span className="px-3 py-1 rounded-full bg-teal-50 dark:bg-teal-900 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-700">Stipend: {post?.stipend || "—"}</span>
-          <span className="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700">Positions: {post?.positions}</span>
-          <span className="px-3 py-1 rounded-full bg-pink-50 dark:bg-pink-900 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-700">Filled: {post?.positions_filled}</span>
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg mb-8">
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">{post?.title}</h2>
+              {post?.status === "closed" ? (
+                <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
+                  CLOSED
+                </span>
+              ) : (
+                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                  OPEN
+                </span>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-6 mb-4 text-sm text-gray-600 dark:text-gray-300">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">🏢</span>
+                <span>{post?.company_name || 'Company'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium">📍</span>
+                <span>{post?.location || 'Location'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium">⏱️</span>
+                <span>{post?.duration || 'Duration'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium">💰</span>
+                <span>{post?.stipend || 'Stipend'}</span>
+              </div>
+            </div>
+            
+            <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">{post?.description}</p>
+            
+            {/* Key Metrics */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{post?.positions || 0}</div>
+                <div className="text-sm text-gray-500">Total Positions</div>
+              </div>
+              <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">{post?.positions_filled || 0}</div>
+                <div className="text-sm text-gray-500">Filled</div>
+              </div>
+              <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600">{apps.length || 0}</div>
+                <div className="text-sm text-gray-500">Applicants</div>
+              </div>
+              <div className="text-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                <div className="text-2xl font-bold text-orange-600">
+                  {post?.positions ? Math.round(((post?.positions_filled || 0) / post.positions) * 100) : 0}%
+                </div>
+                <div className="text-sm text-gray-500">Fill Rate</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* AI Match Controls */}
-        <div className="mt-6 flex flex-wrap gap-3 items-center">
-          <select value={matchOption} onChange={(e) => setMatchOption(e.target.value)} className="px-3 py-1 border rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600">
-            <option value="20%">Top 20%</option>
-            <option value="30%">Top 30%</option>
-            <option value="positions">By No. of Positions</option>
-          </select>
+        {/* Compact Job Details */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-500">Experience:</span>
+            <span className="font-medium">{post?.experience_required || "—"}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">Education:</span>
+            <span className="font-medium">{post?.education_required || "—"}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">Start Date:</span>
+            <span className="font-medium">
+              {post?.start_date ? new Date(post.start_date).toLocaleDateString() : "—"}
+            </span>
+          </div>
+        </div>
 
-          <button onClick={() => runMatch(matchOption)} className="px-5 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-teal-600 text-white font-medium shadow hover:shadow-md transition">Run AI Match</button>
+        {/* Required Skills */}
+        {post?.required_skills && post.required_skills.length > 0 && (
+          <div className="mb-6">
+            <h3 className="font-semibold mb-2">Required Skills</h3>
+            <div className="flex flex-wrap gap-2">
+              {post.required_skills.map((skill, index) => (
+                <span key={index} className="px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-sm">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
-          <button onClick={sendEmails} className="px-5 py-2 rounded-lg bg-green-600 text-white font-medium shadow hover:bg-green-700 transition">
-            {sendingEmails ? "Sending..." : "Send Emails to Top Candidates"}
-          </button>
-
-          {topApplicants.length > 0 && (
-            <button 
-              onClick={selectAllTopApplicants} 
-              disabled={topApplicants.every(a => a.status === "selected") || (post?.positions_filled >= post?.positions)}
-              className={`px-4 py-2 rounded transition ${
-                topApplicants.every(a => a.status === "selected") || (post?.positions_filled >= post?.positions)
-                  ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
+        {/* AI Match Controls - All in one line */}
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div className="flex flex-wrap gap-2 items-center justify-center">
+            <select 
+              value={matchOption} 
+              onChange={(e) => setMatchOption(e.target.value)} 
+              className="px-3 py-2 border rounded-lg bg-white dark:bg-gray-600 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-500 text-sm"
             >
-              {topApplicants.every(a => a.status === "selected") ? "All Selected" : 
-               (post?.positions_filled >= post?.positions) ? "Position Closed" : 
-               "Select All Top Candidates"}
+              <option value="20%">Top 20%</option>
+              <option value="30%">Top 30%</option>
+              <option value="positions">By No. of Positions</option>
+            </select>
+
+            <button 
+              onClick={() => runMatch(matchOption)} 
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-teal-600 text-white font-medium shadow hover:shadow-md transition text-sm"
+            >
+              🤖 Run AI Match
             </button>
-          )}
 
-          <button onClick={createTieBreak} className="px-5 py-2 rounded-lg bg-amber-500 text-white font-medium shadow hover:bg-amber-600 transition">Generate Tie-break Tests</button>
+            <button 
+              onClick={sendEmails} 
+              className="px-4 py-2 rounded-lg bg-green-600 text-white font-medium shadow hover:bg-green-700 transition text-sm"
+            >
+              {sendingEmails ? "Sending..." : "📧 Send Emails"}
+            </button>
 
-          <button onClick={sendTieBreakEmails} className="px-5 py-2 rounded-lg bg-purple-600 text-white font-medium shadow hover:bg-purple-700 transition">Send Tie-break Emails</button>
+            {topApplicants.length > 0 && (
+              <button 
+                onClick={selectAllTopApplicants} 
+                disabled={topApplicants.every(a => a.status === "selected") || (post?.positions_filled >= post?.positions)}
+                className={`px-4 py-2 rounded transition text-sm ${
+                  topApplicants.every(a => a.status === "selected") || (post?.positions_filled >= post?.positions)
+                    ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
+              >
+                {topApplicants.every(a => a.status === "selected") ? "✅ All Selected" : 
+                 (post?.positions_filled >= post?.positions) ? "🔒 Position Closed" : 
+                 "⚡ Select All Top"}
+              </button>
+            )}
 
-          <button onClick={() => window.history.back()} className="px-5 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition">Back</button>
+            <button 
+              onClick={createTieBreak} 
+              className="px-4 py-2 rounded-lg bg-amber-500 text-white font-medium shadow hover:bg-amber-600 transition text-sm"
+            >
+              🎯 Tie-break Tests
+            </button>
+
+            <button 
+              onClick={sendTieBreakEmails} 
+              className="px-4 py-2 rounded-lg bg-purple-600 text-white font-medium shadow hover:bg-purple-700 transition text-sm"
+            >
+              📤 Send Tie-break
+            </button>
+          </div>
         </div>
 
         {/* Display Tie-break Links */}
         {tieLinks && Object.keys(tieLinks).length > 0 && (
-          <div className="mt-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-            <h4 className="font-semibold mb-2">Tie-break Links:</h4>
-            <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300">
+          <div className="mt-4 bg-gray-50 dark:bg-gray-700 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+            <h4 className="font-semibold mb-2">🔗 Tie-break Links Generated:</h4>
+            <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300 space-y-1">
               {Object.entries(tieLinks).map(([appId, link]) => (
-                <li key={appId}>{appId}: <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline">{link}</a></li>
+                <li key={appId}>
+                  Applicant {appId}: <a href={link} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800">{link}</a>
+                </li>
               ))}
             </ul>
           </div>
@@ -865,30 +1006,160 @@ export default function PostDetail() {
       )}
 
       {/* All Applicants */}
-      <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100 mt-8">All Applicants</h2>
-      <div className="grid gap-4">
-        {apps.map((a) => (
-          <div key={a.id} className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow hover:shadow-md transition flex justify-between items-start">
-            <div>
-              <div className="font-semibold text-lg text-gray-800 dark:text-gray-100">{a.name}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">{a.email}</div>
-              <div className="text-sm mt-1">Skills: {(a.skills || []).join(", ") || "—"}</div>
-              <div className="text-sm mt-1">Score: <span className="font-medium text-teal-700 dark:text-teal-300">{a.score ?? "N/A"}</span></div>
-              {a.status === "selected" && <span className="inline-block mt-2 px-2 py-0.5 text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700 rounded">Selected</span>}
-              {a.status === "rejected" && <span className="inline-block mt-2 px-2 py-0.5 text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-700 rounded">Rejected</span>}
-            </div>
-            <div className="flex flex-col gap-2">
-              <button onClick={() => window.open(`/profile/${a.id}`, "_blank", "noopener")} className="px-3 py-1 text-sm border rounded hover:bg-gray-50 dark:hover:bg-gray-700 transition">View Profile</button>
-              {a.status !== "selected" && a.status !== "rejected" && (
-                <>
-                  <button onClick={() => selectApplicant(a.id || a.applicantId)} className="px-3 py-1 text-sm bg-teal-600 text-white rounded hover:bg-teal-700 transition">Select</button>
-                  <button onClick={() => rejectApplicant(a.id || a.applicantId)} className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition">Reject</button>
-                </>
-              )}
-              <button onClick={() => setScheduleModal({ visible: true, applicant: a, datetime: "" })} className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">Schedule Interview</button>
-            </div>
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            All Applicants ({apps.length})
+          </h2>
+          <div className="flex gap-2">
+            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+              {apps.filter(a => a.status === "pending" || !a.status).length} Pending
+            </span>
+            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
+              {apps.filter(a => a.status === "selected").length} Selected
+            </span>
+            <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">
+              {apps.filter(a => a.status === "rejected").length} Rejected
+            </span>
           </div>
-        ))}
+        </div>
+        
+        <div className="grid gap-4">
+          {apps.map((a) => (
+            <div key={a.id} className="bg-gray-50 dark:bg-gray-700 p-5 rounded-xl shadow hover:shadow-md transition flex justify-between items-start">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                    {a.name?.charAt(0)?.toUpperCase() || 'U'}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-lg text-gray-800 dark:text-gray-100">{a.name}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">{a.email}</div>
+                  </div>
+                  {a.status === "selected" && (
+                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                      ✅ SELECTED
+                    </span>
+                  )}
+                  {a.status === "rejected" && (
+                    <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                      ❌ REJECTED
+                    </span>
+                  )}
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                  <div>
+                    <div className="text-xs text-gray-500 uppercase">Skills</div>
+                    <div className="text-sm">
+                      {(a.skills || []).slice(0, 3).join(", ") || "—"}
+                      {(a.skills || []).length > 3 && ` +${a.skills.length - 3} more`}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 uppercase">Education</div>
+                    <div className="text-sm">{a.major || "—"}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 uppercase">Location</div>
+                    <div className="text-sm">{a.location || "—"}</div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3">
+                  <div>
+                    <div className="text-xs text-gray-500 uppercase">AI Score</div>
+                    <div className="text-sm font-medium text-teal-700 dark:text-teal-300">
+                      {a.score ? `${a.score}/100` : "N/A"}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 uppercase">GPA</div>
+                    <div className="text-sm">{a.gpa ? `${a.gpa}/4.0` : "N/A"}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 uppercase">Experience</div>
+                    <div className="text-sm">{a.experience_years || 0} years</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 uppercase">Category</div>
+                    <div className="text-sm">{a.category || "General"}</div>
+                  </div>
+                </div>
+                
+                {/* Additional Info */}
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {a.background === "Rural" && (
+                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
+                      🌾 Rural Background
+                    </span>
+                  )}
+                  {a.gender === "Female" && (
+                    <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">
+                      👩 Female Candidate
+                    </span>
+                  )}
+                  {a.prev_internships === 0 && (
+                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                      🆕 First-time Intern
+                    </span>
+                  )}
+                  {a.certifications && a.certifications.length > 0 && (
+                    <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs">
+                      🏆 {a.certifications.length} Certification{a.certifications.length > 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex flex-col gap-2 ml-4">
+                <button 
+                  onClick={() => window.open(`/profile/${a.id}`, "_blank", "noopener")} 
+                  className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition"
+                >
+                  👤 View Profile
+                </button>
+                
+                {a.status !== "selected" && a.status !== "rejected" && (
+                  <>
+                    <button 
+                      onClick={() => selectApplicant(a.id || a.applicantId)} 
+                      disabled={post?.positions_filled >= post?.positions}
+                      className={`px-3 py-1 text-sm rounded transition ${
+                        post?.positions_filled >= post?.positions
+                          ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                          : "bg-teal-600 text-white hover:bg-teal-700"
+                      }`}
+                    >
+                      {post?.positions_filled >= post?.positions ? "🔒 Closed" : "✅ Select"}
+                    </button>
+                    <button 
+                      onClick={() => rejectApplicant(a.id || a.applicantId)} 
+                      className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition"
+                    >
+                      ❌ Reject
+                    </button>
+                  </>
+                )}
+                
+                <button
+                  onClick={() => setScheduleModal({ visible: true, applicant: a, datetime: "" })}
+                  className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+                >
+                  📅 Schedule Interview
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {apps.length === 0 && (
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="text-4xl mb-4">📋</div>
+            <div className="text-lg font-medium mb-2">No Applicants Yet</div>
+            <div className="text-sm">Applications will appear here once candidates apply for this position.</div>
+          </div>
+        )}
       </div>
 
       {/* Schedule Modal */}

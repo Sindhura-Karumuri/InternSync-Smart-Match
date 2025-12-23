@@ -42,26 +42,35 @@ function HRDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [rejectedCount, setRejectedCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
   const deptId = localStorage.getItem("department_id");
-  const hrName = localStorage.getItem("hr_name") || "HR";
+  const hrName = localStorage.getItem("hr_name") || localStorage.getItem("user_name") || "HR Manager";
   const nav = useNavigate();
 
   const deptName = {
-    "it_software": "IT & Software",
-    "banking_finance": "Banking & Finance", 
-    "fmcg": "FMCG",
-    "oil_gas": "Oil & Gas",
-    "manufacturing": "Manufacturing",
-    "healthcare": "Healthcare",
-    "retail": "Retail",
-    "hospitality": "Hospitality"
-  }[deptId] || "Unknown Department";
+    1: "IT & Software",
+    2: "Banking & Finance", 
+    3: "FMCG",
+    4: "Oil & Gas",
+    5: "Manufacturing",
+    6: "Healthcare",
+    7: "Retail",
+    8: "Hospitality"
+  }[parseInt(deptId)] || "Unknown Department";
 
   useEffect(() => {
     async function load() {
       try {
         const postsRes = await api.get(`/departments/${deptId}/posts`);
         setPosts(postsRes.data);
+        
+        // Fetch analytics data
+        try {
+          const analyticsRes = await api.get(`/departments/${deptId}/analytics`);
+          setAnalytics(analyticsRes.data);
+        } catch (err) {
+          console.error("Failed to fetch analytics:", err);
+        }
         
         // Fetch selected candidates count
         let selectedCount = 0;
@@ -307,90 +316,165 @@ function HRDashboard() {
                 No posts yet — create one.
               </div>
             )}
-            {posts.map((p) => (
-              <div
-                key={p.id}
-                className={`p-6 rounded-2xl shadow hover:shadow-lg transition transform hover:-translate-y-1 ${
-                  p.status === "closed" 
-                    ? theme === "light" ? "bg-gray-100 text-gray-600 border-2 border-gray-300" : "bg-gray-700 text-gray-400 border-2 border-gray-600"
-                    : theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-200"
-                }`}
-              >
-                {p.status === "closed" && (
-                  <div className="mb-3">
-                    <span className="inline-block px-3 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full">
-                      ✅ POSITION CLOSED - ALL POSITIONS FILLED
-                    </span>
-                  </div>
-                )}
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h2 className="text-xl font-semibold">{p?.title || 'Untitled Post'}</h2>
-                    <p className="text-sm mt-1 text-gray-500 dark:text-gray-400">{p?.description || 'No description'}</p>
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      {p.stipend && (
-                        <span
-                          className={`px-3 py-1 text-xs rounded-full border ${
-                            theme === "light"
-                              ? "bg-teal-50 text-teal-700 border-teal-200"
-                              : "bg-teal-900 text-teal-300 border-teal-700"
-                          }`}
-                        >
-                          Stipend: {p.stipend}
-                        </span>
-                      )}
-                      {p.location_preference && (
-                        <span
-                          className={`px-3 py-1 text-xs rounded-full border ${
-                            theme === "light"
-                              ? "bg-indigo-50 text-indigo-700 border-indigo-200"
-                              : "bg-indigo-900 text-indigo-300 border-indigo-700"
-                          }`}
-                        >
-                          Location: {p.location_preference}
-                        </span>
-                      )}
-                      {p.sector && (
-                        <span
-                          className={`px-3 py-1 text-xs rounded-full border ${
-                            theme === "light"
-                              ? "bg-pink-50 text-pink-700 border-pink-200"
-                              : "bg-pink-900 text-pink-300 border-pink-700"
-                          }`}
-                        >
-                          Sector: {p.sector}
-                        </span>
+            
+            {/* Posts Grid */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
+              {posts.map((p) => (
+                <div
+                  key={p.id}
+                  className={`p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 cursor-pointer ${
+                    p.status === "closed" 
+                      ? theme === "light" ? "bg-gray-100 text-gray-600 border-2 border-gray-300" : "bg-gray-700 text-gray-400 border-2 border-gray-600"
+                      : theme === "light" ? "bg-white text-gray-800 hover:bg-gray-50" : "bg-gray-800 text-gray-200 hover:bg-gray-750"
+                  }`}
+                  onClick={() => nav(`/hr/posts/${p.id}`)}
+                >
+                  {p.status === "closed" && (
+                    <div className="mb-3">
+                      <span className="inline-block px-3 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full">
+                        ✅ POSITION CLOSED - ALL POSITIONS FILLED
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h2 className="text-xl font-bold">{p?.title || 'Untitled Post'}</h2>
+                        {p.status === "open" && (
+                          <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                            OPEN
+                          </span>
+                        )}
+                      </div>
+                      
+                      <p className="text-sm mt-1 text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
+                        {p?.description || 'No description'}
+                      </p>
+                      
+                      {/* Company and Location */}
+                      <div className="flex items-center gap-4 mb-3 text-sm">
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium">🏢</span>
+                          <span>{p.company_name || 'Company'}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium">📍</span>
+                          <span>{p.location || 'Location'}</span>
+                        </div>
+                      </div>
+                      
+                      {/* Key Details */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        <div className="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                          <div className="text-lg font-bold text-blue-600">{p.positions || 0}</div>
+                          <div className="text-xs text-gray-500">Positions</div>
+                        </div>
+                        <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                          <div className="text-lg font-bold text-green-600">{p.positions_filled || 0}</div>
+                          <div className="text-xs text-gray-500">Filled</div>
+                        </div>
+                        <div className="text-center p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                          <div className="text-lg font-bold text-purple-600">{p.total_applicants || 0}</div>
+                          <div className="text-xs text-gray-500">Applicants</div>
+                        </div>
+                        <div className="text-center p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                          <div className="text-lg font-bold text-orange-600">{p.duration || 'N/A'}</div>
+                          <div className="text-xs text-gray-500">Duration</div>
+                        </div>
+                      </div>
+                      
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {p.stipend && (
+                          <span
+                            className={`px-3 py-1 text-xs rounded-full border ${
+                              theme === "light"
+                                ? "bg-teal-50 text-teal-700 border-teal-200"
+                                : "bg-teal-900 text-teal-300 border-teal-700"
+                            }`}
+                          >
+                            💰 {p.stipend}
+                          </span>
+                        )}
+                        {p.experience_required && (
+                          <span
+                            className={`px-3 py-1 text-xs rounded-full border ${
+                              theme === "light"
+                                ? "bg-indigo-50 text-indigo-700 border-indigo-200"
+                                : "bg-indigo-900 text-indigo-300 border-indigo-700"
+                            }`}
+                          >
+                            👨‍💼 {p.experience_required}
+                          </span>
+                        )}
+                        {p.application_deadline && (
+                          <span
+                            className={`px-3 py-1 text-xs rounded-full border ${
+                              theme === "light"
+                                ? "bg-red-50 text-red-700 border-red-200"
+                                : "bg-red-900 text-red-300 border-red-700"
+                            }`}
+                          >
+                            ⏰ Apply by {new Date(p.application_deadline).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* Required Skills */}
+                      {p.required_skills && p.required_skills.length > 0 && (
+                        <div className="mb-4">
+                          <div className="text-sm font-medium mb-2">Required Skills:</div>
+                          <div className="flex flex-wrap gap-1">
+                            {p.required_skills.slice(0, 3).map((skill, index) => (
+                              <span
+                                key={index}
+                                className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                            {p.required_skills.length > 3 && (
+                              <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded text-xs">
+                                +{p.required_skills.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>
-
-                  <div className="text-right flex flex-col gap-2">
-                    <div className="text-sm">
-                      Positions: <b>{p.positions}</b>
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      Filled: <b>{p.positions_filled || 0}</b>
-                    </div>
+                  
+                  {/* Action Button */}
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                     {p.status === "closed" ? (
-                      <div className="mt-2 px-4 py-2 rounded-lg bg-green-100 text-green-700 text-center font-medium">
-                        Completed
+                      <div className="text-center px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 font-medium">
+                        Position Completed ✅
                       </div>
                     ) : (
-                      <button
-                        onClick={() => nav(`/hr/posts/${p.id}`)}
-                        className={`mt-2 px-4 py-2 rounded-lg font-medium shadow transition ${
-                          theme === "light"
-                            ? "bg-gradient-to-r from-teal-600 to-indigo-600 text-white hover:shadow-md"
-                            : "bg-gradient-to-r from-indigo-700 to-teal-500 text-gray-100 hover:shadow-lg"
-                        }`}
-                      >
-                        View Applicants
-                      </button>
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm text-gray-500">
+                          {p.total_applicants > 0 ? `${p.total_applicants} applications received` : 'No applications yet'}
+                        </div>
+                        <button
+                          className={`px-4 py-2 rounded-lg font-medium shadow transition ${
+                            theme === "light"
+                              ? "bg-gradient-to-r from-teal-600 to-indigo-600 text-white hover:shadow-md"
+                              : "bg-gradient-to-r from-indigo-700 to-teal-500 text-gray-100 hover:shadow-lg"
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            nav(`/hr/posts/${p.id}`);
+                          }}
+                        >
+                          View {p.total_applicants || 0} Applicants →
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         );
 
@@ -662,214 +746,400 @@ function HRDashboard() {
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold mb-6">AI Matching Insights - {deptName}</h2>
             
-            {/* AI Performance Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className={`p-4 rounded-xl shadow ${
-                theme === "light" ? "bg-blue-50" : "bg-blue-900"
-              }`}>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Match Accuracy</p>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {deptId === "it_software" ? "87.3%" : deptId === "banking_finance" ? "82.1%" : "79.5%"}
-                </p>
-                <p className="text-xs text-gray-500">Based on successful placements</p>
-              </div>
-              <div className={`p-4 rounded-xl shadow ${
-                theme === "light" ? "bg-green-50" : "bg-green-900"
-              }`}>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Avg Match Score</p>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {deptId === "it_software" ? "78.5" : deptId === "banking_finance" ? "74.2" : "71.8"}
-                </p>
-                <p className="text-xs text-gray-500">Out of 100 points</p>
-              </div>
-              <div className={`p-4 rounded-xl shadow ${
-                theme === "light" ? "bg-purple-50" : "bg-purple-900"
-              }`}>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Time Saved</p>
-                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                  {deptId === "it_software" ? "65%" : deptId === "banking_finance" ? "58%" : "52%"}
-                </p>
-                <p className="text-xs text-gray-500">Compared to manual screening</p>
-              </div>
-              <div className={`p-4 rounded-xl shadow ${
-                theme === "light" ? "bg-orange-50" : "bg-orange-900"
-              }`}>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Skill Match Rate</p>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                  {deptId === "it_software" ? "92%" : deptId === "banking_finance" ? "88%" : "85%"}
-                </p>
-                <p className="text-xs text-gray-500">Skills alignment with requirements</p>
-              </div>
-            </div>
-
-            {/* AI Algorithm Details */}
-            <div className={`p-6 rounded-xl shadow ${
-              theme === "light" ? "bg-white" : "bg-gray-800"
-            }`}>
-              <h3 className="text-lg font-semibold mb-4">XGBoost-Inspired Gradient Boosting Algorithm</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-medium mb-2">Model Parameters</h4>
-                  <ul className="text-sm space-y-1">
-                    <li>• Estimators: 50 decision trees</li>
-                    <li>• Learning Rate: 0.1</li>
-                    <li>• Max Depth: 4 levels</li>
-                    <li>• Boosting: Gradient-based</li>
-                    <li>• Features: 7 key attributes</li>
-                    <li>• Training: 500 synthetic samples</li>
-                  </ul>
+            {analytics ? (
+              <>
+                {/* AI Performance Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className={`p-4 rounded-xl shadow ${
+                    theme === "light" ? "bg-blue-50" : "bg-blue-900"
+                  }`}>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Match Accuracy</p>
+                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      {analytics.ai_metrics.accuracy}%
+                    </p>
+                    <p className="text-xs text-gray-500">Based on successful placements</p>
+                  </div>
+                  <div className={`p-4 rounded-xl shadow ${
+                    theme === "light" ? "bg-green-50" : "bg-green-900"
+                  }`}>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Avg Match Score</p>
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      {analytics.ai_metrics.avg_score}
+                    </p>
+                    <p className="text-xs text-gray-500">Out of 100 points</p>
+                  </div>
+                  <div className={`p-4 rounded-xl shadow ${
+                    theme === "light" ? "bg-purple-50" : "bg-purple-900"
+                  }`}>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Time Saved</p>
+                    <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                      {analytics.ai_metrics.time_saved}%
+                    </p>
+                    <p className="text-xs text-gray-500">Compared to manual screening</p>
+                  </div>
+                  <div className={`p-4 rounded-xl shadow ${
+                    theme === "light" ? "bg-orange-50" : "bg-orange-900"
+                  }`}>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Skill Match Rate</p>
+                    <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                      {analytics.ai_metrics.skill_match}%
+                    </p>
+                    <p className="text-xs text-gray-500">Skills alignment with requirements</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-medium mb-2">Feature Importance</h4>
-                  <div className="text-sm space-y-2">
-                    <div className="flex justify-between">
-                      <span>Skills Match:</span>
-                      <span className="font-medium">35%</span>
+
+                {/* Department-Specific Insights */}
+                <div className={`p-6 rounded-xl shadow ${
+                  theme === "light" ? "bg-white" : "bg-gray-800"
+                }`}>
+                  <h3 className="text-lg font-semibold mb-4">Department-Specific AI Insights</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-medium mb-3">Recruitment Overview</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span>Total Applicants:</span>
+                          <span className="font-medium">{analytics.total_applicants}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Active Posts:</span>
+                          <span className="font-medium">{analytics.posts_count}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Selected Candidates:</span>
+                          <span className="font-medium text-green-600">{analytics.selected_count}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Selection Rate:</span>
+                          <span className="font-medium">
+                            {analytics.total_applicants > 0 ? 
+                              Math.round((analytics.selected_count / analytics.total_applicants) * 100) : 0}%
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Qualification:</span>
-                      <span className="font-medium">20%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Location Match:</span>
-                      <span className="font-medium">15%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Sector Interest:</span>
-                      <span className="font-medium">12%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Rural Bonus:</span>
-                      <span className="font-medium">8%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Reserved Category:</span>
-                      <span className="font-medium">7%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Past Participation:</span>
-                      <span className="font-medium">3%</span>
+                    
+                    <div>
+                      <h4 className="font-medium mb-3">AI Algorithm Performance</h4>
+                      <div className="space-y-3">
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>Skills Matching</span>
+                            <span>{analytics.ai_metrics.skill_match}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div 
+                              className="bg-blue-500 h-2 rounded-full transition-all duration-1000"
+                              style={{width: `${analytics.ai_metrics.skill_match}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>Overall Accuracy</span>
+                            <span>{analytics.ai_metrics.accuracy}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div 
+                              className="bg-green-500 h-2 rounded-full transition-all duration-1000"
+                              style={{width: `${analytics.ai_metrics.accuracy}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>Efficiency Gain</span>
+                            <span>{analytics.ai_metrics.time_saved}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div 
+                              className="bg-purple-500 h-2 rounded-full transition-all duration-1000"
+                              style={{width: `${analytics.ai_metrics.time_saved}%`}}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                {/* AI Algorithm Details */}
+                <div className={`p-6 rounded-xl shadow ${
+                  theme === "light" ? "bg-white" : "bg-gray-800"
+                }`}>
+                  <h3 className="text-lg font-semibold mb-4">Enhanced Multi-Factor AI Algorithm</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-medium mb-2">Model Parameters</h4>
+                      <ul className="text-sm space-y-1">
+                        <li>• Algorithm: Gradient Boosting with XGBoost inspiration</li>
+                        <li>• Features: 12 key candidate attributes</li>
+                        <li>• Training Data: {analytics.total_applicants}+ real applications</li>
+                        <li>• Model Accuracy: {analytics.ai_metrics.accuracy}%</li>
+                        <li>• Update Frequency: Real-time learning</li>
+                        <li>• Bias Mitigation: Diversity-aware scoring</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-2">Feature Importance ({deptName})</h4>
+                      <div className="text-sm space-y-2">
+                        <div className="flex justify-between">
+                          <span>Skills Match:</span>
+                          <span className="font-medium">40%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Academic Performance:</span>
+                          <span className="font-medium">30%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Major Alignment:</span>
+                          <span className="font-medium">20%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Experience Level:</span>
+                          <span className="font-medium">10%</span>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                          + Diversity bonuses and location preferences applied
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <div className="animate-pulse">Loading AI insights...</div>
               </div>
-            </div>
+            )}
           </div>
         );
 
       case "diversity-metrics":
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold mb-6">Diversity & Inclusion Metrics</h2>
+            <h2 className="text-2xl font-semibold mb-6">Diversity & Inclusion Metrics - {deptName}</h2>
             
-            {/* Affirmative Action Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <div className={`p-4 rounded-xl shadow ${
-                theme === "light" ? "bg-green-50" : "bg-green-900"
-              }`}>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Rural Candidates</p>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">32%</p>
-                <p className="text-xs text-gray-500">Target: 30%</p>
-              </div>
-              <div className={`p-4 rounded-xl shadow ${
-                theme === "light" ? "bg-blue-50" : "bg-blue-900"
-              }`}>
-                <p className="text-sm text-gray-600 dark:text-gray-300">SC/ST/OBC</p>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">45%</p>
-                <p className="text-xs text-gray-500">Target: 49.5%</p>
-              </div>
-              <div className={`p-4 rounded-xl shadow ${
-                theme === "light" ? "bg-purple-50" : "bg-purple-900"
-              }`}>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Female Candidates</p>
-                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">38%</p>
-                <p className="text-xs text-gray-500">Target: 33%</p>
-              </div>
-              <div className={`p-4 rounded-xl shadow ${
-                theme === "light" ? "bg-orange-50" : "bg-orange-900"
-              }`}>
-                <p className="text-sm text-gray-600 dark:text-gray-300">First-time Interns</p>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">78%</p>
-                <p className="text-xs text-gray-500">No past participation</p>
-              </div>
-              <div className={`p-4 rounded-xl shadow ${
-                theme === "light" ? "bg-indigo-50" : "bg-indigo-900"
-              }`}>
-                <p className="text-sm text-gray-600 dark:text-gray-300">PWD Candidates</p>
-                <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">4%</p>
-                <p className="text-xs text-gray-500">Target: 4%</p>
-              </div>
-            </div>
+            {analytics ? (
+              <>
+                {/* Affirmative Action Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  <div className={`p-4 rounded-xl shadow ${
+                    theme === "light" ? "bg-green-50" : "bg-green-900"
+                  }`}>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Rural Candidates</p>
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      {analytics.diversity_metrics.rural_percentage}%
+                    </p>
+                    <p className="text-xs text-gray-500">Target: 30%</p>
+                  </div>
+                  <div className={`p-4 rounded-xl shadow ${
+                    theme === "light" ? "bg-blue-50" : "bg-blue-900"
+                  }`}>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">SC/ST/OBC</p>
+                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      {analytics.diversity_metrics.reserved_percentage}%
+                    </p>
+                    <p className="text-xs text-gray-500">Target: 49.5%</p>
+                  </div>
+                  <div className={`p-4 rounded-xl shadow ${
+                    theme === "light" ? "bg-purple-50" : "bg-purple-900"
+                  }`}>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Female Candidates</p>
+                    <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                      {analytics.diversity_metrics.female_percentage}%
+                    </p>
+                    <p className="text-xs text-gray-500">Target: 33%</p>
+                  </div>
+                  <div className={`p-4 rounded-xl shadow ${
+                    theme === "light" ? "bg-orange-50" : "bg-orange-900"
+                  }`}>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">First-time Interns</p>
+                    <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                      {analytics.diversity_metrics.first_time_percentage}%
+                    </p>
+                    <p className="text-xs text-gray-500">No past participation</p>
+                  </div>
+                  <div className={`p-4 rounded-xl shadow ${
+                    theme === "light" ? "bg-indigo-50" : "bg-indigo-900"
+                  }`}>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Total Applicants</p>
+                    <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                      {analytics.total_applicants}
+                    </p>
+                    <p className="text-xs text-gray-500">Across all posts</p>
+                  </div>
+                </div>
 
-            {/* Geographic Distribution */}
-            <div className={`p-6 rounded-xl shadow ${
-              theme === "light" ? "bg-white" : "bg-gray-800"
-            }`}>
-              <h3 className="text-lg font-semibold mb-4">Geographic Distribution</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-blue-600">28%</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">Metro Cities</p>
+                {/* Category Breakdown */}
+                <div className={`p-6 rounded-xl shadow ${
+                  theme === "light" ? "bg-white" : "bg-gray-800"
+                }`}>
+                  <h3 className="text-lg font-semibold mb-4">Category-wise Distribution</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    {Object.entries(analytics.diversity_metrics.category_distribution).map(([category, count]) => (
+                      <div key={category} className="text-center">
+                        <p className="text-2xl font-bold text-blue-600">
+                          {Math.round((count / analytics.total_applicants) * 100)}%
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">{category}</p>
+                        <p className="text-xs text-gray-500">({count} candidates)</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-green-600">35%</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">Tier-2 Cities</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-purple-600">25%</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">Tier-3 Cities</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-orange-600">12%</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">Rural Areas</p>
-                </div>
-              </div>
-            </div>
 
-            {/* Educational Background */}
-            <div className={`p-6 rounded-xl shadow ${
-              theme === "light" ? "bg-white" : "bg-gray-800"
-            }`}>
-              <h3 className="text-lg font-semibold mb-4">Educational Background</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Engineering (B.Tech/BE)</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div className="bg-blue-500 h-2 rounded-full" style={{width: '45%'}}></div>
+                {/* Geographic Distribution */}
+                <div className={`p-6 rounded-xl shadow ${
+                  theme === "light" ? "bg-white" : "bg-gray-800"
+                }`}>
+                  <h3 className="text-lg font-semibold mb-4">Geographic Distribution</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-blue-600">{analytics.geographic_distribution.metro}%</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">Metro Cities</p>
+                      <p className="text-xs text-gray-500">Mumbai, Delhi, Bangalore</p>
                     </div>
-                    <span className="text-sm font-medium">45%</span>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-green-600">{analytics.geographic_distribution.tier2}%</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">Tier-2 Cities</p>
+                      <p className="text-xs text-gray-500">Pune, Hyderabad, Chennai</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-purple-600">{analytics.geographic_distribution.tier3}%</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">Tier-3 Cities</p>
+                      <p className="text-xs text-gray-500">Smaller urban centers</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-orange-600">{analytics.geographic_distribution.rural}%</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">Rural Areas</p>
+                      <p className="text-xs text-gray-500">Villages & towns</p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Management (MBA/BBA)</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div className="bg-green-500 h-2 rounded-full" style={{width: '25%'}}></div>
+
+                {/* Educational Background */}
+                <div className={`p-6 rounded-xl shadow ${
+                  theme === "light" ? "bg-white" : "bg-gray-800"
+                }`}>
+                  <h3 className="text-lg font-semibold mb-4">Educational Background Distribution</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Engineering (B.Tech/BE)</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div 
+                            className="bg-blue-500 h-2 rounded-full transition-all duration-1000" 
+                            style={{width: `${analytics.educational_distribution.engineering}%`}}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium">{analytics.educational_distribution.engineering}%</span>
+                      </div>
                     </div>
-                    <span className="text-sm font-medium">25%</span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Management (MBA/BBA)</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div 
+                            className="bg-green-500 h-2 rounded-full transition-all duration-1000" 
+                            style={{width: `${analytics.educational_distribution.management}%`}}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium">{analytics.educational_distribution.management}%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Science (BSc/MSc)</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div 
+                            className="bg-purple-500 h-2 rounded-full transition-all duration-1000" 
+                            style={{width: `${analytics.educational_distribution.science}%`}}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium">{analytics.educational_distribution.science}%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Others</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div 
+                            className="bg-orange-500 h-2 rounded-full transition-all duration-1000" 
+                            style={{width: `${analytics.educational_distribution.others}%`}}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium">{analytics.educational_distribution.others}%</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Science (BSc/MSc)</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div className="bg-purple-500 h-2 rounded-full" style={{width: '20%'}}></div>
-                    </div>
-                    <span className="text-sm font-medium">20%</span>
+
+                {/* Gender Distribution */}
+                <div className={`p-6 rounded-xl shadow ${
+                  theme === "light" ? "bg-white" : "bg-gray-800"
+                }`}>
+                  <h3 className="text-lg font-semibold mb-4">Gender Distribution</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    {Object.entries(analytics.diversity_metrics.gender_distribution).map(([gender, count]) => (
+                      <div key={gender} className="text-center">
+                        <p className="text-2xl font-bold text-indigo-600">
+                          {Math.round((count / analytics.total_applicants) * 100)}%
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">{gender}</p>
+                        <p className="text-xs text-gray-500">({count} candidates)</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Others</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div className="bg-orange-500 h-2 rounded-full" style={{width: '10%'}}></div>
+
+                {/* Diversity Insights */}
+                <div className={`p-6 rounded-xl shadow border-l-4 border-green-500 ${
+                  theme === "light" ? "bg-green-50" : "bg-green-900/20"
+                }`}>
+                  <h3 className="text-lg font-semibold mb-3 text-green-700 dark:text-green-300">
+                    Diversity & Inclusion Insights
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <h4 className="font-medium mb-2">Positive Indicators:</h4>
+                      <ul className="space-y-1 text-green-700 dark:text-green-300">
+                        {analytics.diversity_metrics.female_percentage >= 33 && (
+                          <li>✓ Female representation exceeds target (33%)</li>
+                        )}
+                        {analytics.diversity_metrics.rural_percentage >= 25 && (
+                          <li>✓ Strong rural candidate participation</li>
+                        )}
+                        {analytics.diversity_metrics.first_time_percentage >= 70 && (
+                          <li>✓ High first-time intern participation</li>
+                        )}
+                        <li>✓ Diverse educational backgrounds represented</li>
+                      </ul>
                     </div>
-                    <span className="text-sm font-medium">10%</span>
+                    <div>
+                      <h4 className="font-medium mb-2">Areas for Improvement:</h4>
+                      <ul className="space-y-1 text-orange-700 dark:text-orange-300">
+                        {analytics.diversity_metrics.reserved_percentage < 49.5 && (
+                          <li>• Reserved category representation below target</li>
+                        )}
+                        {analytics.diversity_metrics.rural_percentage < 30 && (
+                          <li>• Rural candidate participation could be higher</li>
+                        )}
+                        {analytics.geographic_distribution.rural < 10 && (
+                          <li>• Limited rural geographic representation</li>
+                        )}
+                      </ul>
+                    </div>
                   </div>
                 </div>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <div className="animate-pulse">Loading diversity metrics...</div>
               </div>
-            </div>
+            )}
           </div>
         );
 

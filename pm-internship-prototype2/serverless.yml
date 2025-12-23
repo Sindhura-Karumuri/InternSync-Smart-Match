@@ -1,0 +1,69 @@
+# serverless.yml - Serverless Framework configuration for AWS deployment
+service: internsync-smart-match
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+  timeout: 30
+  memorySize: 512
+  
+  environment:
+    DATABASE_URL: ${env:DATABASE_URL}
+    AWS_REGION: ${env:AWS_REGION}
+    S3_BUCKET_NAME: ${env:S3_BUCKET_NAME}
+    SES_REGION: ${env:SES_REGION}
+    FROM_EMAIL: ${env:FROM_EMAIL}
+    ENVIRONMENT: ${self:provider.stage}
+  
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+        - s3:DeleteObject
+      Resource: "arn:aws:s3:::${env:S3_BUCKET_NAME}/*"
+    - Effect: Allow
+      Action:
+        - ses:SendEmail
+        - ses:SendRawEmail
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - rds:DescribeDBInstances
+        - rds:Connect
+      Resource: "*"
+
+functions:
+  api:
+    handler: lambda_handler.lambda_handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: true
+      - http:
+          path: /
+          method: ANY
+          cors: true
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    fileName: aws-requirements.txt
+
+package:
+  exclude:
+    - node_modules/**
+    - .git/**
+    - .pytest_cache/**
+    - __pycache__/**
+    - "*.pyc"
+    - .env
+    - README.md
