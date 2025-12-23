@@ -1,4 +1,7 @@
 {
+  "buildCommand": "cd pm-internship-prototype2/frontend && npm run build",
+  "outputDirectory": "pm-internship-prototype2/frontend/dist",
+  "installCommand": "cd pm-internship-prototype2/frontend && npm install",
   "rewrites": [
     {
       "source": "/((?!api/.*).*)",
