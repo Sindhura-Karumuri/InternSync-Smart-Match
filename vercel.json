@@ -1,40 +1,19 @@
 {
-  "buildCommand": "cd pm-internship-prototype2/frontend && npm run build",
+  "buildCommand": "cd pm-internship-prototype2/frontend && npm install && npm run build",
   "outputDirectory": "pm-internship-prototype2/frontend/dist",
-  "installCommand": "cd pm-internship-prototype2/frontend && npm install",
-  "rewrites": [
-    {
-      "source": "/((?!api/.*).*)",
-      "destination": "/index.html"
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.12"
     }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
       "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/(.*\\.js)",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript"
-        }
-      ]
-    },
-    {
-      "source": "/(.*\\.mjs)",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript"
-        }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     }
   ]
 }

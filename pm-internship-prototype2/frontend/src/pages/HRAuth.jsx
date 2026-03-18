@@ -34,11 +34,13 @@ export default function HRAuth() {
   const nav = useNavigate();
 
   const [isRegister, setIsRegister] = useState(false);
+  const deptIdFromCategory = SEED_HR_USERS.find(u => u.category === category)?.department_id || 1;
+
   const [form, setForm] = useState({
     email: "",
     password: "",
     name: "",
-    department_id: parseInt(category.replace(/\s+/g, "_")) || 1,
+    department_id: deptIdFromCategory,
   });
 
   const handleUseDemo = () => {
