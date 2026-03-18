@@ -1,342 +1,145 @@
 # 🚀 InternSync Smart Match
 
-**AI-Powered Internship Matching Platform with Advanced Analytics & Resume Generation**
+**AI-Powered Internship Matching Platform**
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18.2+-blue.svg)](https://reactjs.org)
-[![AWS](https://img.shields.io/badge/AWS-Ready-orange.svg)](https://aws.amazon.com)
-[![Vercel](https://img.shields.io/badge/Deployed-Vercel-black.svg)](https://intern-sync-smart-match.vercel.app/)
+[![Vercel](https://img.shields.io/badge/Frontend-Vercel-black.svg)](https://intern-sync-smart-match.vercel.app/)
+[![Render](https://img.shields.io/badge/Backend-Render-46E3B7.svg)](https://internsync-smart-match.onrender.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **🌐 [Live Application](https://intern-sync-smart-match.vercel.app/)** - Try it now!
+> **🌐 [Live Application](https://intern-sync-smart-match.vercel.app/)** — Try it now!
 
-## 📋 Table of Contents
+## Overview
 
-- [Overview](#-overview)
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Quick Start](#-quick-start)
-- [API Documentation](#-api-documentation)
-- [Project Structure](#-project-structure)
-- [Deployment](#-deployment)
-- [Contributing](#-contributing)
-- [License](#-license)
+InternSync Smart Match is an AI-powered internship recruitment platform that matches candidates with positions across 8 industry domains. HR managers can run AI matching, select/reject candidates, schedule interviews, view analytics, and manage closed internships.
 
-## 🎯 Overview
+### 🔑 Demo Credentials
 
-InternSync Smart Match is a comprehensive AI-powered platform that revolutionizes internship recruitment by intelligently matching candidates with positions across 8 major industry domains. The platform features advanced analytics, automated resume generation, and seamless HR management tools.
+| Department | Email | Password |
+|---|---|---|
+| IT & Software | `it.hr@example.com` | `it12345` |
+| Banking & Finance | `bank.hr@example.com` | `bank12345` |
+| FMCG | `fmcg.hr@example.com` | `fmcg12345` |
+| Oil & Gas | `oil.hr@example.com` | `oil12345` |
+| Manufacturing | `mfg.hr@example.com` | `mfg12345` |
+| Healthcare | `health.hr@example.com` | `health12345` |
+| Retail | `retail.hr@example.com` | `retail12345` |
+| Hospitality | `hospitality.hr@example.com` | `hosp12345` |
 
-> **🌐 [Try the Live Application](https://intern-sync-smart-match.vercel.app/)** - Fully deployed and functional!
+## Features
 
-### 🔑 Quick Access (Live Demo)
-Use these HR credentials to explore the platform:
-- **IT HR**: `it.hr@example.com` / `it12345`
-- **Banking HR**: `bank.hr@example.com` / `bank12345`
-- **FMCG HR**: `fmcg.hr@example.com` / `fmcg12345`
+- **AI Matching** — Score and rank candidates by skills, GPA, and experience
+- **HR Dashboard** — View open positions, applicants, and recruitment stats
+- **Candidate Management** — Select, reject, and schedule interviews
+- **Email Simulation** — Send shortlist emails to top candidates
+- **Analytics** — AI metrics, diversity metrics, geographic and educational distribution
+- **Closed Internships** — Filled positions move automatically to a closed tab
+- **Resume Preview/Download** — View candidate resumes in browser or download as text
+- **Dark/Light Theme** — Full theme support across all pages
 
-### 🏢 Supported Industries
-- **IT & Software** - 25+ roles including Full Stack, AI/ML, DevOps
-- **Banking & Finance** - Investment Banking, Risk Management, Financial Analysis
-- **FMCG** - Brand Management, Marketing, Supply Chain
-- **Oil & Gas** - Petroleum Engineering, Process Engineering, Safety
-- **Manufacturing** - Production Engineering, Quality Control, Automation
-- **Healthcare** - Clinical Research, Healthcare IT, Medical Administration
-- **Retail** - Store Management, E-commerce, Customer Experience
-- **Hospitality** - Hotel Management, Event Planning, Tourism
+## Tech Stack
 
-## ✨ Features
+**Backend** — FastAPI (Python), in-memory data store, deployed on Render  
+**Frontend** — React 18 + Vite, Tailwind CSS, Chart.js, deployed on Vercel
 
-### 🤖 AI-Powered Matching
-- **Smart Algorithm**: Advanced matching based on skills, GPA, experience, and major compatibility
-- **Real-time Scoring**: Dynamic candidate scoring with 60-95% accuracy range
-- **Department-Specific Logic**: Tailored matching criteria for each industry domain
-
-### 📊 Advanced Analytics Dashboard
-- **Diversity Metrics**: Rural/Urban, Gender, Category distribution analysis
-- **Performance Insights**: AI accuracy rates, time savings, skill match percentages
-- **Geographic Distribution**: Metro, Tier-2, Tier-3, Rural candidate mapping
-- **Educational Background**: Engineering, Management, Science distribution
-
-### 📄 Automated Resume Generation
-- **AI-Generated Content**: Realistic resumes based on candidate profiles
-- **Department-Specific**: Industry-relevant skills, projects, and experience
-- **Professional Formatting**: Clean HTML resumes with download/preview options
-- **Bulk Generation**: Generate resumes for all 240+ candidates instantly
-
-### 🎛️ HR Management Tools
-- **Multi-Department Access**: 8 specialized HR dashboards
-- **Candidate Selection**: Select, reject, and manage candidate pipelines
-- **Interview Scheduling**: Automated interview coordination
-- **Email Integration**: Bulk email sending to top candidates
-- **CSV Export**: Export selected candidates with complete profiles
-
-### 🌐 Cloud-Ready Architecture
-- **AWS Integration**: RDS, S3, SES, Lambda support
-- **LLM Integration**: OpenAI GPT-3.5 for intelligent features
-- **Scalable Design**: Microservices architecture with FastAPI
-- **Modern Frontend**: React with Tailwind CSS and responsive design
-
-## 🛠️ Tech Stack
-
-### Backend
-- **Framework**: FastAPI (Python 3.8+)
-- **Database**: SQLite (Local) / PostgreSQL (AWS RDS)
-- **AI/ML**: Custom matching algorithms + OpenAI GPT-3.5
-- **Cloud**: AWS (RDS, S3, SES, Lambda)
-- **Authentication**: JWT-based HR authentication
-
-### Frontend
-- **Framework**: React 18.2+ with Vite
-- **Styling**: Tailwind CSS
-- **Icons**: Lucide React
-- **Charts**: Chart.js with React integration
-- **Routing**: React Router DOM
-
-### DevOps & Deployment
-- **Containerization**: Docker & Docker Compose
-- **Serverless**: AWS Lambda ready
-- **CI/CD**: GitHub Actions compatible
-- **Monitoring**: Built-in health checks and analytics
-
-## 🚀 Quick Start
+## Local Development
 
 ### Prerequisites
 - Python 3.8+
 - Node.js 16+
-- Git
 
-### 1. Clone Repository
+### 1. Clone the repo
 ```bash
-git clone https://github.com/SindhuraKarumuri/InternSync-Smart-Match.git
-cd InternSync-Smart-Match/pm-internship-prototype2
+git clone https://github.com/Sindhura-Karumuri/InternSync-Smart-Match.git
+cd InternSync-Smart-Match
 ```
 
-### 2. Backend Setup
+### 2. Start the backend
 ```bash
-# Install Python dependencies
 pip install -r requirements.txt
-
-# Start backend server
-cd backend
-python main.py
+python -m uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 ```
-Backend will be available at `http://localhost:8000`
+Backend runs at `http://localhost:8000`
 
-### 3. Frontend Setup
+### 3. Start the frontend
 ```bash
-# Install Node dependencies
-cd frontend
+cd pm-internship-prototype2/frontend
 npm install
-
-# Start development server
 npm run dev
 ```
-Frontend will be available at `http://localhost:5174`
+Frontend runs at `http://localhost:5173`
 
-### 4. Generate Sample Data
-```bash
-# Generate resumes for all users
-curl -X POST http://localhost:8000/generate-resumes
-```
+The frontend reads `VITE_API_URL` from `.env` — defaults to `http://localhost:8000` if not set.
 
-### 5. Access HR Dashboard
-Use these credentials to login:
-- **IT HR**: `it.hr@example.com` / `it12345`
-- **Banking HR**: `bank.hr@example.com` / `bank12345`
-- **FMCG HR**: `fmcg.hr@example.com` / `fmcg12345`
-
-## 📚 API Documentation
-
-### Core Endpoints
-```
-GET  /health                              # Health check
-GET  /dashboard                           # Departments overview
-POST /auth/login                          # HR authentication
-```
-
-### Department & Posts
-```
-GET  /departments/{dept_id}/posts         # Get department posts
-GET  /posts/{post_id}                     # Get specific post
-GET  /departments/{dept_id}/posts/{post_id}/applicants  # Get applicants
-```
-
-### AI Matching & Selection
-```
-POST /posts/{post_id}/match               # Run AI matching
-POST /posts/{post_id}/select              # Select candidate
-POST /posts/{post_id}/reject              # Reject candidate
-```
-
-### Resume Generation
-```
-POST /generate-resumes                    # Generate all resumes
-GET  /applicants/{id}/resume              # Get resume data
-GET  /applicants/{id}/resume/download     # Download resume
-GET  /applicants/{id}/resume/preview      # Preview resume
-GET  /resumes/stats                       # Resume statistics
-```
-
-### Analytics & Export
-```
-GET  /departments/{dept_id}/analytics     # Department analytics
-GET  /departments/{dept}/selected/export  # Export CSV
-```
-
-[📖 **Complete API Documentation**](API_DOCUMENTATION.md)
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 InternSync-Smart-Match/
-├── pm-internship-prototype2/
-│   ├── backend/
-│   │   ├── main.py                 # Main FastAPI application
-│   │   ├── main_aws.py            # AWS-integrated version
-│   │   ├── resume_generator.py    # Resume generation service
-│   │   ├── llm_services.py        # LLM integration
-│   │   ├── database.py            # Database models
-│   │   └── aws_services.py        # AWS services integration
-│   ├── frontend/
-│   │   ├── src/
-│   │   │   ├── pages/             # React components
-│   │   │   ├── utils/             # Utilities and API client
-│   │   │   └── App.jsx            # Main React app
-│   │   ├── package.json
-│   │   └── vite.config.js
-│   ├── k8s/                       # Kubernetes configurations
-│   ├── requirements.txt           # Python dependencies
-│   ├── docker-compose.yml         # Docker setup
-│   └── README.md                  # Project documentation
-└── README.md                      # This file
+├── app.py                          # FastAPI backend (all routes)
+├── requirements.txt                # Python dependencies
+├── render.yaml                     # Render deployment config
+├── vercel.json                     # Vercel deployment config
+└── pm-internship-prototype2/
+    └── frontend/
+        ├── src/
+        │   ├── pages/              # React page components
+        │   │   ├── HRDashboard.jsx
+        │   │   ├── PostDetail.jsx
+        │   │   ├── ClosedInternships.jsx
+        │   │   ├── HRAuth.jsx
+        │   │   ├── SelectedTab.jsx
+        │   │   ├── RejectedTab.jsx
+        │   │   └── ...
+        │   ├── components/
+        │   │   ├── ThemeContext.jsx
+        │   │   └── ProtectedRoute.jsx
+        │   └── utils/
+        │       └── api.js          # Axios instance with base URL
+        ├── .env                    # VITE_API_URL for local dev
+        ├── .env.production         # VITE_API_URL for production
+        └── vite.config.js
 ```
 
-## 🌟 Key Highlights
+## API Endpoints
 
-### 📈 Scale & Performance
-- **240+ Candidates** across 8 departments
-- **100% Resume Generation** success rate
-- **35+ API Endpoints** for comprehensive functionality
-- **Real-time Analytics** with department-specific insights
-
-### 🎯 Smart Features
-- **Minimum 5 posts per department** with realistic company data
-- **25+ candidates per post** with complete profiles
-- **Department-specific content** for resumes and job descriptions
-- **Automated position closing** when requirements are met
-
-### 🔒 Enterprise Ready
-- **JWT Authentication** for HR users
-- **Role-based Access Control** by department
-- **Data Export Capabilities** with CSV format
-- **Cloud Deployment Ready** with AWS integration
-
-## 🚀 Deployment
-
-### 🌐 Live Production (Vercel)
-The application is currently deployed and running at:
-**https://intern-sync-smart-match.vercel.app/**
-
-### Local Development
-```bash
-# Start both services
-docker-compose up -d
+```
+GET  /health
+POST /auth/login
+GET  /departments/{dept_id}/posts
+GET  /departments/{dept_id}/analytics
+GET  /departments/{dept_id}/selected
+GET  /departments/{dept_id}/rejected
+GET  /departments/{dept_id}/closed
+GET  /posts/{post_id}
+GET  /departments/{dept_id}/posts/{post_id}/applicants
+POST /posts/{post_id}/match
+POST /posts/{post_id}/select
+POST /posts/{post_id}/reject
+POST /posts/{post_id}/schedule
+POST /posts/{post_id}/send_top_emails
+GET  /applicants/{id}/resume/preview
+GET  /applicants/{id}/resume/download
 ```
 
-### Vercel Deployment
-```bash
-# Install Vercel CLI
-npm i -g vercel
+## Deployment
 
-# Deploy frontend
-cd frontend
-vercel --prod
+| Service | Platform | URL |
+|---|---|---|
+| Frontend | Vercel | https://intern-sync-smart-match.vercel.app |
+| Backend | Render | https://internsync-smart-match.onrender.com |
 
-# For full-stack deployment with API routes
-vercel --prod
-```
+Pushing to `main` triggers automatic redeployment on both platforms.
 
-### AWS Deployment
-```bash
-# Setup AWS services
-python quick-start-aws.py
+> **Note:** The backend uses an in-memory data store — state resets on each Render restart (free tier). This is intentional for demo purposes.
 
-# Deploy to Lambda
-serverless deploy
-```
+## License
 
-### Kubernetes
-```bash
-# Deploy to K8s cluster
-kubectl apply -f k8s/
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-**Repository**: [https://github.com/SindhuraKarumuri/InternSync-Smart-Match](https://github.com/SindhuraKarumuri/InternSync-Smart-Match)
-
-## 📊 Project Stats
-
-- **Lines of Code**: 5000+
-- **API Endpoints**: 35+
-- **Departments Covered**: 8
-- **Sample Users**: 240+
-- **Resume Templates**: Department-specific
-- **Test Coverage**: Comprehensive API testing
-
-## 🏆 Achievements
-
-✅ **Complete AI Matching System** with department-specific algorithms  
-✅ **Automated Resume Generation** for all candidates  
-✅ **Advanced Analytics Dashboard** with diversity metrics  
-✅ **Multi-Department HR Management** with role-based access  
-✅ **Cloud-Ready Architecture** with AWS integration  
-✅ **LLM Integration** for intelligent candidate analysis  
-✅ **Professional UI/UX** with responsive design  
-✅ **Comprehensive API Documentation** with 35+ endpoints  
-
-## 🌐 Live Demo
-
-**🚀 [View Live Application](https://intern-sync-smart-match.vercel.app/)**
-
-The application is deployed on Vercel and fully functional. You can:
-- Login with HR credentials
-- Explore the AI matching system
-- View candidate profiles with resume download/preview
-- Access analytics dashboards
-- Test all features in real-time
-
-## 📞 Support
-
-For support, create an issue in this repository or contact the development team.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
 <div align="center">
-
-**⭐ Star this repository if you find it helpful!**
-
-Made with ❤️ by the InternSync Team
-
-[🌐 Live Demo](https://intern-sync-smart-match.vercel.app/) | [📚 API Documentation](API_DOCUMENTATION.md) | [🐛 Report Bug](https://github.com/SindhuraKarumuri/InternSync-Smart-Match/issues)
-
-</div>
-
-**⭐ Star this repository if you find it helpful!**
-
-Made with ❤️ by the InternSync Team
-
-[🌐 Live Demo](https://intern-sync-smart-match.vercel.app/) | [📚 Documentation](API_DOCUMENTATION.md) | [🐛 Report Bug](https://github.com/yourusername/InternSync-Smart-Match/issues)
-
+Made with ❤️ by the InternSync Team &nbsp;|&nbsp; <a href="https://intern-sync-smart-match.vercel.app/">🌐 Live Demo</a>
 </div>
