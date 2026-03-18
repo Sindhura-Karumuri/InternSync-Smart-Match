@@ -1,12 +1,16 @@
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from app import app  # FastAPI instance
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import random
 
-# Vercel calls this file as an ASGI handler.
-# The rewrite rule sends /api/* here, but the path in scope still includes /api.
-# We wrap the app to strip the /api prefix before FastAPI sees the request.
+# Re-create the app here so Vercel detects the `app` name directly in this file.
+# We import all the data/logic from the root app.py by re-using its globals.
+import app as _root
 
+# Wrap root app with /api prefix stripping
 class _StripPrefix:
     def __init__(self, inner, prefix: str = "/api"):
         self._inner = inner
@@ -25,6 +29,5 @@ class _StripPrefix:
                     scope["raw_path"] = raw[len(self._prefix):] or b"/"
         await self._inner(scope, receive, send)
 
-
-# This is the ASGI entrypoint Vercel will call
-handler = _StripPrefix(app)
+# Vercel looks for a variable named `app` in this file
+app = _StripPrefix(_root.app)
