@@ -307,19 +307,21 @@ function HRDashboard() {
       case "dashboard":
         return (
           <div className="grid gap-6">
-            {posts.length === 0 && (
+            {posts.filter((p) => p.status !== "closed").length === 0 && (
               <div
                 className={`text-center p-6 rounded-xl shadow ${
                   theme === "light" ? "bg-white text-gray-500" : "bg-gray-900 text-gray-300"
                 }`}
               >
-                No posts yet — create one.
+                {posts.length > 0
+                  ? "All positions are filled — check the Closed tab."
+                  : "No posts yet — create one."}
               </div>
             )}
             
             {/* Posts Grid */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
-              {posts.map((p) => (
+              {posts.filter((p) => p.status !== "closed").map((p) => (
                 <div
                   key={p.id}
                   className={`p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 cursor-pointer ${
