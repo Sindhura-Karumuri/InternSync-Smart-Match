@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import api from "../utils/api";
 import { User, Mail, MapPin, Award, Briefcase, Sun, Moon, Phone, Calendar, GraduationCap, Languages, FileText } from "lucide-react";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
 export default function Profile() {
   const { applicantId } = useParams();
   const [data, setData] = useState(null);
@@ -317,7 +319,7 @@ export default function Profile() {
             ← Back to Dashboard
           </button>
           <a
-            href={`http://localhost:8000/applicants/${applicantId}/resume/download`}
+            href={`${API_BASE}/applicants/${applicantId}/resume/download`}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-teal-600 text-white rounded-lg shadow hover:shadow-md transition"
@@ -326,7 +328,7 @@ export default function Profile() {
             Download Resume
           </a>
           <a
-            href={`http://localhost:8000/applicants/${applicantId}/resume/preview`}
+            href={`${API_BASE}/applicants/${applicantId}/resume/preview`}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg shadow hover:shadow-md transition"

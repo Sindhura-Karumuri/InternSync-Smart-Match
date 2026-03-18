@@ -7,7 +7,7 @@ app = FastAPI(title="PM Internship Backend")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Allows Vercel frontend + localhost
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -216,9 +216,11 @@ def select_applicant(post_id: int, data: dict):
     post = get_post(post_id)
     already_selected = [a["id"] for a in _selected.get(post_id, [])]
     if applicant_id in already_selected:
-        return {"message": "Already selected", "candidate": candidate, "positions_filled": len(already_selected), "total_positions": post["positions"], "position_closed": len(already_selected) >= post["positions"]}
+        filled = len(already_selected)
+        return {"message": "Already selected", "candidate": {**candidate, "post_id": post_id}, "positions_filled": filled, "total_positions": post["positions"], "position_closed": filled >= post["positions"]}
 
-    _selected.setdefault(post_id, []).append(candidate)
+    candidate_with_post = {**candidate, "post_id": post_id}
+    _selected.setdefault(post_id, []).append(candidate_with_post)
     # Remove from rejected if present
     _rejected[post_id] = [a for a in _rejected.get(post_id, []) if a["id"] != applicant_id]
 
@@ -226,7 +228,7 @@ def select_applicant(post_id: int, data: dict):
     position_closed = filled >= post["positions"]
     return {
         "message": "Applicant selected",
-        "candidate": candidate,
+        "candidate": candidate_with_post,
         "positions_filled": filled,
         "total_positions": post["positions"],
         "position_closed": position_closed,
@@ -251,7 +253,15 @@ def reject_applicant(post_id: int, data: dict):
 
 @app.post("/posts/{post_id}/schedule")
 def schedule_post(post_id: int, data: dict):
-    return {"message": "Interview scheduled and email sent successfully"}
+    import uuid
+    meeting_id = str(uuid.uuid4())[:8]
+    join_url = data.get("join_url") or f"https://meet.example.com/{meeting_id}"
+    return {
+        "message": "Interview scheduled and email sent successfully",
+        "meeting_id": meeting_id,
+        "join_url": join_url,
+        "datetime": data.get("datetime_iso", ""),
+    }
 
 
 @app.get("/posts/{post_id}/meetings")
@@ -281,6 +291,47 @@ def send_top_emails(post_id: int, method: str = "top_percent", value: int = 20, 
 @app.get("/posts/{post_id}/send_top_emails")
 def send_top_emails_get(post_id: int, method: str = "top_percent", value: int = 20):
     return {"message": f"Sent emails to top {value}% candidates", "sent_count": 3}
+
+
+@app.get("/applicants/{applicant_id}/resume/download")
+def download_resume(applicant_id: int):
+    candidate = next((a for a in SAMPLE_APPLICANTS if a["id"] == applicant_id), None)
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Applicant not found")
+    content = f"""RESUME
+======
+Name:  {candidate['name']}
+Email: {candidate['email']}
+Major: {candidate['major']}
+GPA:   {candidate['gpa']}
+Year:  {candidate['year']}
+Skills: {', '.join(candidate['skills'])}
+"""
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(
+        content=content,
+        headers={"Content-Disposition": f"attachment; filename=resume_{applicant_id}.txt"}
+    )
+
+
+@app.get("/applicants/{applicant_id}/resume/preview")
+def preview_resume(applicant_id: int):
+    candidate = next((a for a in SAMPLE_APPLICANTS if a["id"] == applicant_id), None)
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Applicant not found")
+    from fastapi.responses import HTMLResponse
+    html = f"""<html><body style="font-family:sans-serif;max-width:600px;margin:40px auto;padding:20px;border:1px solid #ddd;border-radius:8px">
+<h1>{candidate['name']}</h1>
+<p>📧 {candidate['email']} | 📍 {candidate['location']}</p>
+<hr/>
+<h2>Education</h2>
+<p><b>{candidate['major']}</b> — GPA: {candidate['gpa']} | {candidate['year']}</p>
+<h2>Skills</h2>
+<p>{', '.join(candidate['skills'])}</p>
+<h2>Qualifications</h2>
+<p>{candidate['qualifications']}</p>
+</body></html>"""
+    return HTMLResponse(content=html)
 
 
 @app.get("/applicants/{applicant_id}")
@@ -314,6 +365,27 @@ def get_selected(dept: str):
     for post_id, applicants in _selected.items():
         if (post_id - 1) // 25 + 1 == dept_id:
             result.extend(applicants)
+    return result
+
+
+@app.get("/departments/{dept}/closed")
+def get_closed(dept: str):
+    try:
+        dept_id = int(dept)
+    except (ValueError, TypeError):
+        return []
+    roles = ROLES_BY_DEPT.get(dept_id, [])
+    result = []
+    for i, role in enumerate(roles):
+        post_id = (dept_id - 1) * 25 + i + 1
+        sel = _selected.get(post_id, [])
+        post = _build_post(dept_id, i, role)
+        if post["status"] == "closed":
+            result.append({
+                **post,
+                "closed_at": "2026-03-18",
+                "selected_candidates_count": len(sel),
+            })
     return result
 
 
